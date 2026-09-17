@@ -5,18 +5,18 @@ import { PageSection } from "@/components/ui/page-section";
 import { Placeholder } from "@/components/ui/placeholder";
 
 export const metadata: Metadata = {
-  title: "About me",
-  description: "Background, experience, and what I work on.",
+  title: "Projects",
+  description: "Personal pet projects and experiments.",
 };
 
-export default function AboutPage() {
+export default function ProjectsPage() {
   return (
     <PageSection>
       <PageHeader
-        title="About me"
-        description="Placeholder — background, experience, and what I work on."
+        title="Projects"
+        description="Placeholder — personal pet projects and experiments."
       />
-      <Placeholder label="About content placeholder" />
+      <Placeholder label="Projects list placeholder" />
     </PageSection>
   );
 }

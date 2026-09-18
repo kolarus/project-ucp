@@ -173,7 +173,7 @@ resource "aws_iam_role" "github_actions" {
         }
 
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:kolarus/project-ucp:*"
+          "token.actions.githubusercontent.com:sub" = "repo:kolarus@21310184/project-ucp@1374627645:*"
         }
       }
     }]

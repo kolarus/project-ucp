@@ -1,6 +1,10 @@
-name: Build and Push bmorozov.com
+name: Build, Push to ECR, and Deploy bmorozov.com
 
 on:
+  push:
+    branches:
+      - main
+
   workflow_dispatch:
 
 permissions:

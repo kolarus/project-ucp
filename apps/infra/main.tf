@@ -219,3 +219,45 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
 output "github_actions_role_arn" {
   value = aws_iam_role.github_actions.arn
 }
+
+resource "aws_iam_role_policy" "github_actions_deploy" {
+  name = "ec2-deploy"
+  role = aws_iam_role.github_actions.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ssm:SendCommand"
+        ]
+
+        Resource = [
+          aws_instance.bmorozovcom.arn,
+          "arn:aws:ssm:eu-north-1::document/AWS-RunShellScript"
+        ]
+      },
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ssm:GetCommandInvocation"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}

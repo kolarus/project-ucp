@@ -17,24 +17,6 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv
 unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install
 rm -rf /tmp/aws /tmp/awscliv2.zip
-# --------------------------------------------------
-# Application
-# --------------------------------------------------
-
-# Authenticate Docker to ECR using the EC2 IAM role
-aws ecr get-login-password --region ${aws_region} | \
-  docker login \
-    --username AWS \
-    --password-stdin \
-    ${ecr_registry}
-
-docker pull ${ecr_repository_url}:latest
-
-docker run -d \
-  --name bmorozovcom \
-  --restart unless-stopped \
-  -p 127.0.0.1:3000:3000 \
-  ${ecr_repository_url}:latest
 
 # --------------------------------------------------
 # Caddy

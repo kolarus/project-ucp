@@ -261,3 +261,27 @@ resource "aws_iam_role_policy" "github_actions_deploy" {
     ]
   })
 }
+
+resource "aws_ecr_lifecycle_policy" "bmorozovcom" {
+  repository = aws_ecr_repository.bmorozovcom.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only the latest 10 commit images"
+
+        selection = {
+          tagStatus     = "tagged"
+          tagPatternList = ["*"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 10
+        }
+
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}

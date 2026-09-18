@@ -61,7 +61,34 @@ export function ProjectCard({
         {project.infra ? (
           <ChipRow label="Infrastructure" items={project.infra} />
         ) : null}
-        <p className="mt-auto text-xs text-muted">Updated {project.updated}</p>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-muted">Updated {project.updated}</p>
+          {project.diagram ? (
+            // `relative z-10` lifts it above the card's stretched link.
+            <a
+              href={project.diagram}
+              target="_blank"
+              rel="noreferrer"
+              className="relative z-10 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Architecture diagram
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-3.5"
+              >
+                <path d="M14 4h6v6" />
+                <path d="M20 4 10 14" />
+                <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+              </svg>
+            </a>
+          ) : null}
+        </div>
       </div>
     </li>
   );

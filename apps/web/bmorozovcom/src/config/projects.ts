@@ -15,6 +15,8 @@ export type Project = {
   href: string;
   /** Screenshot in `public/projects/`. */
   image: { src: string; alt: string };
+  /** Architecture diagram, opened in its own tab from the card. */
+  diagram?: string;
 };
 
 export const projects: readonly Project[] = [
@@ -32,6 +34,7 @@ export const projects: readonly Project[] = [
       "GitHub Actions",
       "Caddy",
       "Cloudflare DNS + proxy",
+      "pnpm monorepo",
     ],
     updated: "September 2026",
     href: siteConfig.url,
@@ -40,5 +43,6 @@ export const projects: readonly Project[] = [
       src: "/projects/personal-website-2026-09.jpg",
       alt: "The about page of this site: heading, intro, stats row and side links.",
     },
+    diagram: "/projects/personal-website-architecture.svg",
   },
 ];

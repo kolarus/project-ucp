@@ -7,6 +7,8 @@ export type Project = {
   /** Why it exists. */
   purpose: string;
   tech: readonly string[];
+  /** How it's built, shipped and served. Omit for projects without a pipeline. */
+  infra?: readonly string[];
   /** Display date, e.g. "September 2026". */
   updated: string;
   /** Where the card links to: the live thing, or its source. */
@@ -19,10 +21,18 @@ export const projects: readonly Project[] = [
   {
     name: "Personal website",
     description:
-      "This site: a small, server-rendered personal site with an about page, project list, and contact details.",
-    purpose:
-      "A place to point people at, and somewhere to keep the CV and contact details current.",
+      "This site. Server-rendered pages, built as a container and deployed on every push to main — the commit in the footer is the one running.",
+    purpose: "Somewhere to point people at, and to keep the CV current.",
     tech: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+    infra: [
+      "Docker",
+      "Terraform",
+      "AWS EC2",
+      "Amazon ECR",
+      "GitHub Actions",
+      "Caddy",
+      "Cloudflare DNS + proxy",
+    ],
     updated: "September 2026",
     href: siteConfig.url,
     image: {

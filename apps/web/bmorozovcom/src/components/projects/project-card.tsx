@@ -23,14 +23,14 @@ export function ProjectCard({
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 origin-left scale-x-0 bg-foreground/[0.05] transition-transform duration-500 ease-out group-hover:scale-x-100 group-focus-within:scale-x-100 motion-reduce:transition-none"
       />
-      <div className="relative aspect-16/10 w-full shrink-0 overflow-hidden border-b border-border sm:aspect-auto sm:w-72 sm:border-r sm:border-b-0 lg:w-96">
+      <div className="relative aspect-16/10 w-full shrink-0 overflow-hidden border-b border-border bg-foreground/[0.03] p-3 sm:aspect-auto sm:w-80 sm:border-r sm:border-b-0 lg:w-[30rem]">
         <Image
           src={project.image.src}
           alt={project.image.alt}
           fill
           priority={priority}
-          sizes="(min-width: 1024px) 24rem, (min-width: 640px) 18rem, 100vw"
-          className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105 group-focus-within:scale-105 motion-reduce:transition-none"
+          sizes="(min-width: 1024px) 30rem, (min-width: 640px) 20rem, 100vw"
+          className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03] group-focus-within:scale-[1.03] motion-reduce:transition-none"
         />
       </div>
       <div className="flex flex-1 flex-col gap-5 p-6 lg:p-8">
@@ -57,18 +57,39 @@ export function ProjectCard({
           </span>
           <p className="max-w-prose text-sm leading-6">{project.purpose}</p>
         </div>
-        <ul className="flex flex-wrap gap-2">
-          {project.tech.map((item) => (
-            <li
-              key={item}
-              className="rounded-full border border-border px-3 py-1 text-xs text-muted"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
+        <ChipRow label="Stack" items={project.tech} />
+        {project.infra ? (
+          <ChipRow label="Infrastructure" items={project.infra} />
+        ) : null}
         <p className="mt-auto text-xs text-muted">Updated {project.updated}</p>
       </div>
     </li>
+  );
+}
+
+/** A labelled row of chips: the stack, or what runs it. */
+function ChipRow({
+  label,
+  items,
+}: {
+  label: string;
+  items: readonly string[];
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs font-medium tracking-wide text-muted uppercase">
+        {label}
+      </span>
+      <ul className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <li
+            key={item}
+            className="rounded-full border border-border px-3 py-1 text-xs text-muted"
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

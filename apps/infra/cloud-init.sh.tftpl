@@ -1,0 +1,68 @@
+#!/bin/bash
+set -euxo pipefail
+
+# --------------------------------------------------
+# Docker + AWS CLI
+# --------------------------------------------------
+
+apt-get update
+apt-get install -y docker.io curl unzip
+
+systemctl enable docker
+systemctl start docker
+
+# Install AWS CLI v2
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+unzip -q /tmp/awscliv2.zip -d /tmp
+/tmp/aws/install
+rm -rf /tmp/aws /tmp/awscliv2.zip
+# --------------------------------------------------
+# Application
+# --------------------------------------------------
+
+# Authenticate Docker to ECR using the EC2 IAM role
+aws ecr get-login-password --region ${aws_region} | \
+  docker login \
+    --username AWS \
+    --password-stdin \
+    ${ecr_registry}
+
+docker pull ${ecr_repository_url}:latest
+
+docker run -d \
+  --name bmorozovcom \
+  --restart unless-stopped \
+  -p 127.0.0.1:3000:3000 \
+  ${ecr_repository_url}:latest
+
+# --------------------------------------------------
+# Caddy
+# --------------------------------------------------
+
+apt-get install -y debian-keyring debian-archive-keyring apt-transport-https gnupg
+
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
+  | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
+  | tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
+
+chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+chmod o+r /etc/apt/sources.list.d/caddy-stable.list
+
+apt-get update
+apt-get install -y caddy
+
+# --------------------------------------------------
+# Caddy configuration
+# --------------------------------------------------
+
+cat > /etc/caddy/Caddyfile <<'EOF'
+bmorozov.com, www.bmorozov.com {
+    reverse_proxy localhost:3000
+}
+EOF
+
+systemctl enable caddy
+systemctl restart caddy

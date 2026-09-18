@@ -12,6 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Inspect OIDC token
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const token = await core.getIDToken('sts.amazonaws.com');
+            const payload = JSON.parse(
+              Buffer.from(token.split('.')[1], 'base64url').toString()
+            );
+
+            console.log({
+              sub: payload.sub,
+              aud: payload.aud,
+              repository: payload.repository,
+              ref: payload.ref
+            });
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:

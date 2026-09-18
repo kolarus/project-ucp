@@ -1,0 +1,12 @@
+# Context is the repo root for every app's Dockerfile.
+**/node_modules
+**/.next
+**/.git
+**/.DS_Store
+**/*.log
+**/.env*
+**/Dockerfile
+.dockerignore
+**/README.md
+**/AGENTS.md
+**/CLAUDE.md

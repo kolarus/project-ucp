@@ -10,6 +10,25 @@ pnpm build
 pnpm lint
 ```
 
+## Deploy
+
+The app ships as a container. Each app owns its `Dockerfile`, but the build
+context is the repo root, so run it from there:
+
+```bash
+docker build -f apps/web/bmorozovcom/Dockerfile -t bmorozovcom .
+docker run -p 3000:3000 bmorozovcom
+```
+
+Every `COPY` in the Dockerfile is root-relative for that reason. The app is
+flattened into `/app` in the image rather than reproducing its path, and the
+root `.dockerignore` keeps `node_modules` and `.next` out of the context.
+
+Multi-stage build on `node:22-alpine`: dependencies, `next build`, then a
+runtime stage carrying only `.next/standalone` (`output: "standalone"`) plus
+`.next/static` and `public/`. Runs as a non-root user on port 3000 — override
+with `PORT` and `HOSTNAME`. Image is ~295MB.
+
 ## Structure
 
 ```

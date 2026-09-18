@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
+import { StatGrid } from "@/components/about/stat-grid";
 import { BannerLink } from "@/components/ui/banner-link";
 import { DownloadCv } from "@/components/ui/download-cv";
-import { LocationBadge } from "@/components/ui/location-badge";
 import { PageColumns } from "@/components/ui/page-columns";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSection } from "@/components/ui/page-section";
 import { Prose } from "@/components/ui/prose";
-import { location } from "@/config/site";
+import { stats } from "@/config/about";
 
 const title = "About me";
 const description =
@@ -19,7 +19,6 @@ export default function AboutPage() {
   return (
     <PageSection>
       <PageHeader title={title} />
-      <LocationBadge location={location} />
       <PageColumns
         aside={
           <>
@@ -38,19 +37,18 @@ export default function AboutPage() {
       >
         <Prose>
           <p>
-            I’m Bohdan — a software engineer and independent contractor with
-            9+ years of experience building software products across different
-            domains and levels of complexity. My strongest expertise is in frontend and
-            mobile engineering, particularly React, TypeScript, Next.js, and
-            React Native, but I’m not limited to those areas and I’m open to
-            discussing projects across different stacks, including full-stack
-            work. I enjoy solving engineering problems, learning new
-            technologies when a project calls for them, and working on
-            everything from product features to architecture, design systems,
-            accessibility, and performance. I’m currently open to both contract
-            and permanent opportunities.
+            I’m Bohdan — a software engineer and independent contractor who has
+            built products across many domains and levels of complexity. My
+            strongest expertise is in frontend and mobile engineering,
+            particularly React, TypeScript, Next.js, and React Native, but I’m
+            not limited to those areas and I’m open to projects across different
+            stacks, including full-stack work. I enjoy solving engineering
+            problems, learning new technologies when a project calls for them,
+            and working on everything from product features to architecture,
+            design systems, accessibility, and performance.
           </p>
         </Prose>
+        <StatGrid stats={stats} />
         <DownloadCv />
         <Prose>
           <p>

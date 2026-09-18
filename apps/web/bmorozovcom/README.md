@@ -15,12 +15,15 @@ pnpm lint
 ```
 src/
   app/                  routes (layout.tsx, page.tsx per segment)
+  app/icon.tsx          favicon + Apple icon, generated from the initials
+  components/about/     homepage stat tiles
   components/layout/    site shell: header, nav, footer
   components/contact/   contact channels, languages
   components/projects/  project cards
   components/ui/        presentational primitives
-  config/site.ts        identity, location, CV
+  config/site.ts        identity and CV
   config/navigation.ts  main nav items
+  config/about.ts       homepage stats
   config/contact.ts     contact channels and languages
   config/projects.ts    project entries
   lib/                  helpers
@@ -47,4 +50,4 @@ per kind of content.
   `cv.updated`.
 - **New project** — add an entry to `projects` and put its screenshot in
   `public/projects/`.
-- **Contact details, languages, location** — `contact.ts` and `site.ts`.
+- **Stats, contact details, languages** — `about.ts` and `contact.ts`.

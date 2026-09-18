@@ -26,8 +26,9 @@ export const projects: readonly Project[] = [
     updated: "September 2026",
     href: siteConfig.url,
     image: {
-      src: "/projects/personal-website.jpg",
-      alt: "The about page of this site, showing the header, heading and intro text.",
+      // Date-stamped so a new screenshot can never be served from cache.
+      src: "/projects/personal-website-2026-09.jpg",
+      alt: "The about page of this site: heading, intro, stats row and side links.",
     },
   },
 ];

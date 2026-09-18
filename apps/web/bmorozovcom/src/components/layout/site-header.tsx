@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import { SiteNav } from "@/components/layout/site-nav";
 import { Container } from "@/components/ui/container";
-import { mainNav, siteConfig } from "@/config/site";
+import { mainNav } from "@/config/navigation";
+import { siteConfig } from "@/config/site";
 
+/** Sticky site shell header: text logo left, main nav centred. */
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">

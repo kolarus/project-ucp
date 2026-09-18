@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/container";
 import { siteConfig } from "@/config/site";
 
+/** Site shell footer. */
 export function SiteFooter() {
   return (
     <footer className="border-t border-border">

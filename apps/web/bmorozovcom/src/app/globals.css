@@ -6,6 +6,8 @@
   --muted: #5c5c5c;
   --border: #e5e5e5;
   --accent: #171717;
+  /* Signals availability on the location indicator. */
+  --live: #059669;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +17,7 @@
     --muted: #a1a1a1;
     --border: #262626;
     --accent: #ededed;
+    --live: #34d399;
   }
 }
 
@@ -24,6 +27,7 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-live: var(--live);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

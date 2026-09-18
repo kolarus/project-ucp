@@ -1,3 +1,4 @@
+/** Title and standfirst opening every page. */
 export function PageHeader({
   title,
   description,

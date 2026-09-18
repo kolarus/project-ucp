@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 
-import type { NavItem } from "@/config/site";
+import type { NavItem } from "@/config/navigation";
 import { cn } from "@/lib/cn";
 
 /**
@@ -31,7 +31,7 @@ export function SiteNav({
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm sm:text-base transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  "rounded-md px-3 py-2 text-sm transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:text-base",
                   isActive ? "font-medium text-foreground" : "text-muted",
                 )}
               >

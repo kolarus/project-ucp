@@ -27,6 +27,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 
 # ---- build ------------------------------------------------------------------
 FROM base AS builder
+# The commit this image was built from. NEXT_PUBLIC_* is inlined by next build,
+# so the footer carries the SHA of the code it was actually built from.
+ARG GIT_SHA
+ENV NEXT_PUBLIC_GIT_SHA=$GIT_SHA
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/web/bmorozovcom/ ./
 RUN pnpm build

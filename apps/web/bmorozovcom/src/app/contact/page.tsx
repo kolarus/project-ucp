@@ -31,10 +31,10 @@ export default function ContactPage() {
       <Section title="Languages">
         <Prose>
           <p>
-            I have an advanced command of English and I’m fluent in Ukrainian
-            and Russian, so I’m comfortable working in any of these languages. I
-            also understand Polish well, although I’m not yet confident enough
-            speaking it to use it professionally.
+            I work in English day to day, and I’m fluent in Ukrainian and
+            Russian, so I’m comfortable in any of the three. I also understand
+            Polish well, although I’m not yet confident enough speaking it to
+            use it professionally.
           </p>
         </Prose>
         <LanguageList languages={languages} />

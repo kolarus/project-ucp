@@ -10,3 +10,10 @@
 **/README.md
 **/AGENTS.md
 **/CLAUDE.md
+
+# Infrastructure never goes into an app image. Ignoring it also keeps local
+# Terraform state and the provider cache out of the build context.
+apps/infra
+**/.terraform
+**/*.tfstate
+**/*.tfstate.*

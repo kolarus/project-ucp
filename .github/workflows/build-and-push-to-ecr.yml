@@ -41,6 +41,8 @@ jobs:
           docker build \
             --platform linux/amd64 \
             --build-arg GIT_SHA=${{ github.sha }} \
+            --build-arg AMPLITUDE_API_KEY=${{ vars.AMPLITUDE_API_KEY }} \
+            --build-arg AMPLITUDE_SERVER_ZONE=${{ vars.AMPLITUDE_SERVER_ZONE || 'US' }} \
             -f apps/web/bmorozovcom/Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \

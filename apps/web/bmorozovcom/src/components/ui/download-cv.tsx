@@ -1,4 +1,5 @@
 import { cv } from "@/config/site";
+import { trackClick } from "@/lib/analytics-events";
 import { cn } from "@/lib/cn";
 
 /** CV download button with the file's date, wired to `cv` in the site config. */
@@ -8,6 +9,7 @@ export function DownloadCv({ className }: { className?: string }) {
       <a
         href={cv.href}
         download={cv.fileName}
+        {...trackClick("cv_downloaded", { cv_version: cv.updated })}
         className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <svg

@@ -14,9 +14,18 @@ export function TextLink({
   href,
   children,
 }: {
-  href: Route | `https://${string}`;
+  href: Route | `https://${string}` | `/${string}.${string}`;
   children: ReactNode;
 }) {
+  // A path with a file extension is a static asset, not a route.
+  if (/\.[a-z0-9]+$/i.test(href)) {
+    return (
+      <a href={href} target="_blank" className={linkClassName}>
+        {children}
+      </a>
+    );
+  }
+
   if (href.startsWith("https://")) {
     return (
       <a href={href} target="_blank" rel="noreferrer" className={linkClassName}>

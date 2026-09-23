@@ -1,6 +1,8 @@
 import { siteConfig } from "@/config/site";
 
 export type Project = {
+  /** URL segment for the project's own pages, e.g. its architecture diagram. */
+  slug: string;
   name: string;
   /** One or two lines on what it is. */
   description: string;
@@ -15,12 +17,13 @@ export type Project = {
   href: string;
   /** Screenshot in `public/projects/`. */
   image: { src: string; alt: string };
-  /** Architecture diagram, opened in its own tab from the card. */
-  diagram?: string;
+  /** Architecture diagram in `public/projects/`, shown on its own page. */
+  diagram?: { src: string; width: number; height: number };
 };
 
 export const projects: readonly Project[] = [
   {
+    slug: "personal-website",
     name: "Personal website",
     description:
       "This site. Server-rendered pages, built as a container and deployed on every push to main — the commit in the footer is the one running.",
@@ -43,6 +46,10 @@ export const projects: readonly Project[] = [
       src: "/projects/personal-website-2026-09.jpg",
       alt: "The about page of this site: heading, intro, stats row and side links.",
     },
-    diagram: "/projects/personal-website-architecture.svg",
+    diagram: {
+      src: "/projects/personal-website-architecture.svg",
+      width: 1120,
+      height: 660,
+    },
   },
 ];

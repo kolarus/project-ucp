@@ -31,6 +31,12 @@ FROM base AS builder
 # so the footer carries the SHA of the code it was actually built from.
 ARG GIT_SHA
 ENV NEXT_PUBLIC_GIT_SHA=$GIT_SHA
+# Amplitude browser keys ship to every visitor, so this is config, not a secret.
+# Unset = analytics off.
+ARG AMPLITUDE_API_KEY
+ARG AMPLITUDE_SERVER_ZONE=US
+ENV NEXT_PUBLIC_AMPLITUDE_API_KEY=$AMPLITUDE_API_KEY
+ENV NEXT_PUBLIC_AMPLITUDE_SERVER_ZONE=$AMPLITUDE_SERVER_ZONE
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/web/bmorozovcom/ ./
 RUN pnpm build

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import type { ClickTracking } from "@/lib/analytics-events";
 import { cn } from "@/lib/cn";
 
 /**
@@ -11,10 +12,13 @@ import { cn } from "@/lib/cn";
 export function CopyButton({
   value,
   label,
+  tracking,
   className,
 }: {
   value: string;
   label: string;
+  /** Analytics attributes from `trackClick`, if the copy should be counted. */
+  tracking?: ClickTracking;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -40,6 +44,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={copy}
+      {...tracking}
       aria-label={copied ? `${label} copied` : `Copy ${label}`}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",

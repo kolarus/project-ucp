@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import type { Project } from "@/config/projects";
+import { trackClick } from "@/lib/analytics-events";
 
 /**
  * One project as a full-width row: screenshot on the left from `sm` up, with
@@ -42,6 +43,11 @@ export function ProjectCard({
               href={project.href}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noreferrer" : undefined}
+              {...trackClick("project_clicked", {
+                project: project.name,
+                destination: "live_site",
+                url: project.href,
+              })}
               className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none after:focus-visible:outline-2 after:focus-visible:outline-offset-2 after:focus-visible:outline-accent"
             >
               {project.name}
@@ -64,11 +70,17 @@ export function ProjectCard({
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">Updated {project.updated}</p>
           {project.diagram ? (
-            // `relative z-10` lifts it above the card's stretched link.
+            // `relative z-10` lifts it above the card's stretched link. No
+            // `rel="noreferrer"`: the diagram page reads the referrer to
+            // attribute the visit to this card.
             <a
-              href={project.diagram}
+              href={`/projects/${project.slug}/architecture`}
               target="_blank"
-              rel="noreferrer"
+              {...trackClick("project_clicked", {
+                project: project.name,
+                destination: "architecture_diagram",
+                url: `/projects/${project.slug}/architecture`,
+              })}
               className="relative z-10 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               Architecture diagram

@@ -1,5 +1,6 @@
 import { CopyButton } from "@/components/ui/copy-button";
 import type { ContactChannel } from "@/config/contact";
+import { trackClick } from "@/lib/analytics-events";
 
 /** The platforms to reach out through, as linked cards. */
 export function ContactChannels({
@@ -11,6 +12,7 @@ export function ContactChannels({
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {channels.map((channel) => {
         const isExternal = channel.href.startsWith("http");
+        const type = channel.label.toLowerCase();
 
         return (
           // The copy button sits beside the card link rather than inside it:
@@ -20,6 +22,7 @@ export function ContactChannels({
               href={channel.href}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noreferrer" : undefined}
+              {...trackClick("contact_clicked", { type, action: "open" })}
               className="flex w-full flex-col gap-1 rounded-xl border border-border p-5 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <span className="text-sm text-muted">{channel.label}</span>
@@ -32,6 +35,7 @@ export function ContactChannels({
               <CopyButton
                 value={channel.handle}
                 label={channel.label}
+                tracking={trackClick("contact_clicked", { type, action: "copy" })}
                 className="absolute top-3 right-3"
               />
             ) : null}

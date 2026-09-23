@@ -54,6 +54,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          # Runtime-only: the stats page reads Amplitude with it. Passed to
+          # the container at start, never baked into the image.
+          AMPLITUDE_SECRET_KEY: ${{ secrets.AMPLITUDE_SECRET_KEY }}
         run: |
           INSTANCE_ID=$(aws ec2 describe-instances \
             --filters \
@@ -71,7 +74,7 @@ jobs:
               \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",
               \"docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\",
               \"docker rm -f bmorozovcom || true\",
-              \"docker run -d --name bmorozovcom --restart unless-stopped -p 127.0.0.1:3000:3000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\"
+              \"docker run -d --name bmorozovcom --restart unless-stopped -p 127.0.0.1:3000:3000 -e AMPLITUDE_SECRET_KEY=$AMPLITUDE_SECRET_KEY $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\"
             ]" \
             --query "Command.CommandId" \
             --output text)

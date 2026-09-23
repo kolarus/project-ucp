@@ -69,12 +69,37 @@ Our events carry only what Amplitude can't infer:
 |---|---|
 | `contact_clicked` | `type`, `action` (`open` or `copy`) |
 | `cv_downloaded` | `cv_version` |
-| `project_clicked` | `project`, `destination` (`live_site` or `architecture_diagram`), `url` |
+| `project_clicked` | `project`, `destination` (`project_page`, `live_site`, `architecture_diagram`, `stats` or `source`), `url` |
 | `architecture_diagram_viewed` | `project` |
 
 Click events are declared with `trackClick()` from
 `src/lib/analytics-events.ts` and sent by one delegated listener, so tracked
 links stay server components. View events use `<TrackView>`.
+
+## Stats page
+
+`/projects/<slug>/stats` (projects with `stats: true`) reads this site's own
+Amplitude events back through the Dashboard REST API and draws them — page views,
+CV downloads and contact clicks per channel (copying the email address counts as
+an email click). Hourly for the last 24 hours, the default; daily for 7, 30 and
+90 days. Queries run on the server (`src/lib/amplitude-api.ts`, `server-only`); the page
+renders per request for the chosen range.
+
+Freshness is set by Amplitude, which caches query results itself: about 5
+minutes for hourly queries, an hour for daily up to 7 days, 6 hours up to 30,
+18 hours up to 180. The "Last 24 hours" range uses hourly buckets for near-live
+numbers, and the page states each range's freshness. Our own cache sits under
+Amplitude's (60 seconds hourly, 5 minutes daily) — polling faster only spends
+rate limit.
+
+It needs the project's **secret key** at runtime as `AMPLITUDE_SECRET_KEY`, plus
+the API key above. Without them the page says stats aren't connected.
+
+- **Production** — the `AMPLITUDE_SECRET_KEY` GitHub Actions secret. The deploy
+  step passes it to the container at start; it's never baked into the image.
+  It does appear in the SSM Run Command's parameters, so it's retained in that
+  command's history in AWS.
+- **Local** — `AMPLITUDE_SECRET_KEY` in `.env.local` (dev project).
 
 ## Structure
 
@@ -83,19 +108,23 @@ src/
   app/                  routes (layout.tsx, page.tsx per segment)
   app/icon.tsx          favicon + Apple icon, generated from the initials
   components/about/     homepage stat tiles
-  components/layout/    site shell: header, nav, footer
+  components/analytics/ <TrackView> for page-view events
   components/contact/   contact channels, languages
-  components/projects/  project cards
+  components/layout/    site shell: header, nav, footer
+  components/projects/  project cards and chips
+  components/stats/     stats page: tiles, column chart, range picker
   components/ui/        presentational primitives
   config/site.ts        identity and CV
   config/navigation.ts  main nav items
   config/about.ts       homepage stats
   config/contact.ts     contact channels and languages
   config/projects.ts    project entries
-  lib/                  helpers
+  content/projects/     long-form write-up per project page
+  lib/                  helpers, analytics events, Amplitude read client
+  instrumentation-client.ts  Amplitude init + click listener
 public/
   cv/                   the published CV
-  projects/             project screenshots
+  projects/             project screenshots and diagrams
 ```
 
 Everything renders on the server except `components/layout/site-nav.tsx` (needs

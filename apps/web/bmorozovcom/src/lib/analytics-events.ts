@@ -14,7 +14,12 @@ export type ClickEvents = {
   cv_downloaded: { cv_version: string };
   project_clicked: {
     project: string;
-    destination: "live_site" | "architecture_diagram";
+    destination:
+      | "project_page"
+      | "live_site"
+      | "architecture_diagram"
+      | "stats"
+      | "source";
     url: string;
   };
 };

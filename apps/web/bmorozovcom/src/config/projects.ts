@@ -13,10 +13,14 @@ export type Project = {
   infra?: readonly string[];
   /** Display date, e.g. "September 2026". */
   updated: string;
-  /** Where the card links to: the live thing, or its source. */
-  href: string;
+  /** The live thing. */
+  href: `https://${string}`;
+  /** Path of the project's code in the monorepo, linked on its page. */
+  sourcePath?: string;
   /** Screenshot in `public/projects/`. */
   image: { src: string; alt: string };
+  /** Has a live stats page built from its own Amplitude events. */
+  stats?: boolean;
   /** Architecture diagram in `public/projects/`, shown on its own page. */
   diagram?: { src: string; width: number; height: number };
 };
@@ -28,7 +32,7 @@ export const projects: readonly Project[] = [
     description:
       "This site. Server-rendered pages, built as a container and deployed on every push to main — the commit in the footer is the one running.",
     purpose: "Somewhere to point people at, and to keep the CV current.",
-    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Amplitude"],
     infra: [
       "Docker",
       "Terraform",
@@ -41,6 +45,8 @@ export const projects: readonly Project[] = [
     ],
     updated: "September 2026",
     href: siteConfig.url,
+    sourcePath: "apps/web/bmorozovcom",
+    stats: true,
     image: {
       // Date-stamped so a new screenshot can never be served from cache.
       src: "/projects/personal-website-2026-09.jpg",
@@ -49,7 +55,7 @@ export const projects: readonly Project[] = [
     diagram: {
       src: "/projects/personal-website-architecture.svg",
       width: 1120,
-      height: 660,
+      height: 750,
     },
   },
 ];

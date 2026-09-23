@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 660" width="1120" height="660" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 750" width="1120" height="750" role="img" aria-labelledby="title desc">
   <title id="title">bmorozov.com — build and deploy architecture</title>
-  <desc id="desc">A push to main runs GitHub Actions, which builds a Docker image, pushes it to Amazon ECR and deploys it over SSM to an EC2 host where Caddy reverse-proxies the Next.js container. Terraform provisions the AWS resources; Cloudflare provides DNS and proxying for visitors.</desc>
+  <desc id="desc">A push to main runs GitHub Actions, which builds a Docker image, pushes it to Amazon ECR and deploys it over SSM to an EC2 host where Caddy reverse-proxies the Next.js container. Terraform provisions the AWS resources; Cloudflare provides DNS and proxying for visitors, whose browsers send analytics events to Amplitude; the stats page reads them back server-side through the Dashboard REST API.</desc>
 
   <style>
     text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #171717; }
@@ -31,7 +31,7 @@
     </marker>
   </defs>
 
-  <rect width="1120" height="660" fill="#ffffff"/>
+  <rect width="1120" height="750" fill="#ffffff"/>
 
   <text class="h" x="40" y="46">bmorozov.com — build and deploy</text>
   <text class="sub" x="40" y="68">One push to main ships a new image. The commit in the site footer is the one running.</text>
@@ -56,9 +56,9 @@
   <rect class="box" x="396" y="136" width="260" height="170" rx="10"/>
   <text class="box-title" x="412" y="162">GitHub Actions</text>
   <text class="box-sub" x="412" y="186">OIDC → AWS role (no static keys)</text>
-  <text class="box-sub" x="412" y="209">docker build --build-arg GIT_SHA</text>
+  <text class="box-sub" x="412" y="209">docker build (GIT_SHA, Amplitude key)</text>
   <text class="box-sub" x="412" y="232">push :sha and :latest</text>
-  <text class="box-sub" x="412" y="255">aws ssm send-command</text>
+  <text class="box-sub" x="412" y="255">ssm deploy, Amplitude secret at start</text>
   <text class="box-sub" x="412" y="285">context: repo root, -f apps/…/Dockerfile</text>
 
   <!-- AWS -->
@@ -90,6 +90,10 @@
   <text class="box-title" x="336" y="584">Cloudflare</text>
   <text class="box-sub" x="336" y="603">DNS + proxy</text>
 
+  <rect class="box" x="60" y="664" width="300" height="58" rx="10"/>
+  <text class="box-title" x="76" y="688">Amplitude (US)</text>
+  <text class="box-sub" x="76" y="707">page views · attribution · 4 events · app_version</text>
+
   <!-- edges -->
   <path class="edge" d="M 320 301 L 396 240" marker-end="url(#arrow)"/>
   <text class="edge-label" x="326" y="272">git push</text>
@@ -111,6 +115,12 @@
 
   <path class="edge-live" d="M 540 589 L 920 589 L 920 502" marker-end="url(#arrow-live)"/>
   <text class="edge-label live-text" x="640" y="580">proxied → Elastic IP</text>
+
+  <path class="edge" d="M 150 618 L 150 664" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="160" y="646">analytics events from the browser</text>
+
+  <path class="edge" d="M 1000 478 L 1000 693 L 360 693" marker-end="url(#arrow)"/>
+  <text class="edge-label" x="420" y="685">stats page reads them back: Dashboard REST API, secret key, server-side</text>
 
   <path class="edge-dim" d="M 190 350 L 190 470 L 750 470" marker-end="url(#arrow-dim)"/>
   <text class="edge-label" x="236" y="462">terraform apply (apps/infra) — provisions ECR, EC2, EIP, IAM/OIDC, SG</text>

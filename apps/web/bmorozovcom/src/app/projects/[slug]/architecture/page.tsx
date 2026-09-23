@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -69,7 +69,9 @@ export default async function ArchitecturePage({
         />
       </figure>
       <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-        <TextLink href="/projects">Back to projects</TextLink>
+        <TextLink href={`/projects/${project.slug}` as Route}>
+          Back to {project.name.toLowerCase()}
+        </TextLink>
         <TextLink href={project.diagram.src as `/${string}.${string}`}>
           Open full size
         </TextLink>

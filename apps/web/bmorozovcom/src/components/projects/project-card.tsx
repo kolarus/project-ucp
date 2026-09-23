@@ -1,11 +1,16 @@
+import type { Route } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
+import { ChipRow } from "@/components/projects/chip-row";
+import { PillLink } from "@/components/ui/pill-link";
 import type { Project } from "@/config/projects";
 import { trackClick } from "@/lib/analytics-events";
 
 /**
  * One project as a full-width row: screenshot on the left from `sm` up, with
- * what it is, what it's for, and what it's built with beside it.
+ * what it is, what it's for, and what it's built with beside it. The whole card
+ * opens the project's page; the live site and diagram have their own buttons.
  */
 export function ProjectCard({
   project,
@@ -15,7 +20,9 @@ export function ProjectCard({
   /** Set on the first card so its image isn't lazy-loaded above the fold. */
   priority?: boolean;
 }) {
-  const isExternal = project.href.startsWith("http");
+  const projectPage = `/projects/${project.slug}` as Route;
+  const diagramPage = `/projects/${project.slug}/architecture` as Route;
+  const statsPage = `/projects/${project.slug}/stats` as Route;
 
   return (
     <li className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-border transition-colors duration-300 hover:border-accent focus-within:border-accent sm:min-h-60 sm:flex-row">
@@ -39,19 +46,17 @@ export function ProjectCard({
           <h3 className="text-xl font-semibold tracking-tight">
             {/* Stretched link: the anchor covers the card, so the whole row is
                 clickable while the accessible name stays the project name. */}
-            <a
-              href={project.href}
-              target={isExternal ? "_blank" : undefined}
-              rel={isExternal ? "noreferrer" : undefined}
+            <Link
+              href={projectPage}
               {...trackClick("project_clicked", {
                 project: project.name,
-                destination: "live_site",
-                url: project.href,
+                destination: "project_page",
+                url: projectPage,
               })}
               className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none after:focus-visible:outline-2 after:focus-visible:outline-offset-2 after:focus-visible:outline-accent"
             >
               {project.name}
-            </a>
+            </Link>
           </h3>
           <p className="max-w-prose text-sm leading-6 text-muted">
             {project.description}
@@ -69,66 +74,48 @@ export function ProjectCard({
         ) : null}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">Updated {project.updated}</p>
-          {project.diagram ? (
-            // `relative z-10` lifts it above the card's stretched link. No
-            // `rel="noreferrer"`: the diagram page reads the referrer to
-            // attribute the visit to this card.
-            <a
-              href={`/projects/${project.slug}/architecture`}
-              target="_blank"
-              {...trackClick("project_clicked", {
+          {/* `relative z-10` lifts the buttons above the stretched link. */}
+          <div className="flex flex-wrap gap-2">
+            <PillLink
+              href={project.href}
+              tracking={trackClick("project_clicked", {
                 project: project.name,
-                destination: "architecture_diagram",
-                url: `/projects/${project.slug}/architecture`,
+                destination: "live_site",
+                url: project.href,
               })}
-              className="relative z-10 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="relative z-10"
             >
-              Architecture diagram
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="size-3.5"
+              Live site
+            </PillLink>
+            {project.stats ? (
+              <PillLink
+                href={statsPage}
+                tracking={trackClick("project_clicked", {
+                  project: project.name,
+                  destination: "stats",
+                  url: statsPage,
+                })}
+                className="relative z-10"
               >
-                <path d="M14 4h6v6" />
-                <path d="M20 4 10 14" />
-                <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
-              </svg>
-            </a>
-          ) : null}
+                Live stats
+              </PillLink>
+            ) : null}
+            {project.diagram ? (
+              <PillLink
+                href={diagramPage}
+                tracking={trackClick("project_clicked", {
+                  project: project.name,
+                  destination: "architecture_diagram",
+                  url: diagramPage,
+                })}
+                className="relative z-10"
+              >
+                Architecture diagram
+              </PillLink>
+            ) : null}
+          </div>
         </div>
       </div>
     </li>
-  );
-}
-
-/** A labelled row of chips: the stack, or what runs it. */
-function ChipRow({
-  label,
-  items,
-}: {
-  label: string;
-  items: readonly string[];
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xs font-medium tracking-wide text-muted uppercase">
-        {label}
-      </span>
-      <ul className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <li
-            key={item}
-            className="rounded-full border border-border px-3 py-1 text-xs text-muted"
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

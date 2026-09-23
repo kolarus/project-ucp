@@ -14,6 +14,7 @@ permissions:
 env:
   AWS_REGION: eu-north-1
   ECR_REPOSITORY: personal/bmorozovcom
+  AMPLITUDE_SECRET_PARAMETER: /bmorozovcom/amplitude-secret-key
 
 jobs:
   build:
@@ -50,13 +51,31 @@ jobs:
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      # The stats page's Amplitude secret is managed as a GitHub secret. Park
+      # it in Parameter Store (encrypted) so the deploy command below only has
+      # to name it — the value never appears in the SSM command or its
+      # history. A failure here warns rather than blocks the deploy; the stats
+      # page then says it isn't connected.
+      - name: Store Amplitude secret in Parameter Store
+        env:
+          AMPLITUDE_SECRET_KEY: ${{ secrets.AMPLITUDE_SECRET_KEY }}
+        run: |
+          if [ -z "$AMPLITUDE_SECRET_KEY" ]; then
+            echo "::warning::AMPLITUDE_SECRET_KEY is not set; the stats page will show as not connected."
+            exit 0
+          fi
+
+          aws ssm put-parameter \
+            --name "$AMPLITUDE_SECRET_PARAMETER" \
+            --type SecureString \
+            --value "$AMPLITUDE_SECRET_KEY" \
+            --overwrite > /dev/null \
+            || echo "::warning::Could not store the Amplitude secret in Parameter Store."
+
       - name: Deploy to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
-          # Runtime-only: the stats page reads Amplitude with it. Passed to
-          # the container at start, never baked into the image.
-          AMPLITUDE_SECRET_KEY: ${{ secrets.AMPLITUDE_SECRET_KEY }}
         run: |
           INSTANCE_ID=$(aws ec2 describe-instances \
             --filters \
@@ -74,7 +93,8 @@ jobs:
               \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",
               \"docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\",
               \"docker rm -f bmorozovcom || true\",
-              \"docker run -d --name bmorozovcom --restart unless-stopped -p 127.0.0.1:3000:3000 -e AMPLITUDE_SECRET_KEY=$AMPLITUDE_SECRET_KEY $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\"
+              \"export AMPLITUDE_SECRET_KEY=\$(aws ssm get-parameter --region $AWS_REGION --name $AMPLITUDE_SECRET_PARAMETER --with-decryption --query Parameter.Value --output text 2>/dev/null || true)\",
+              \"docker run -d --name bmorozovcom --restart unless-stopped -p 127.0.0.1:3000:3000 -e AMPLITUDE_SECRET_KEY $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG\"
             ]" \
             --query "Command.CommandId" \
             --output text)

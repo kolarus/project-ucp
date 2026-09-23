@@ -124,6 +124,14 @@ resource "aws_instance" "bmorozovcom" {
   })
 
   user_data_replace_on_change = true
+
+  lifecycle {
+    # `data.aws_ami.ubuntu` resolves to the newest Ubuntu image on every run.
+    # Without this, each new Canonical release would make Terraform replace
+    # the running server (downtime, new instance ID). New AMIs apply only
+    # when the instance is created from scratch.
+    ignore_changes = [ami]
+  }
 }
 
 resource "aws_ecr_repository" "bmorozovcom" {
@@ -283,5 +291,54 @@ resource "aws_ecr_lifecycle_policy" "bmorozovcom" {
         }
       }
     ]
+  })
+}
+# --------------------------------------------------
+# Amplitude secret handoff
+# --------------------------------------------------
+#
+# The secret key behind the site's stats page is managed as a GitHub Actions
+# secret. On each deploy the workflow writes it to this Parameter Store entry
+# (encrypted), and the instance reads it when starting the container — so the
+# value never appears in the SSM command sent to the instance. The entry is
+# created by the workflow, not here, so its value never enters Terraform state.
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+locals {
+  amplitude_secret_parameter_arn = "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/bmorozovcom/amplitude-secret-key"
+}
+
+# SecureStrings on the AWS-managed aws/ssm key need no separate KMS grants:
+# that key allows use through Parameter Store to principals in this account.
+
+resource "aws_iam_role_policy" "github_actions_amplitude_secret" {
+  name = "write-amplitude-secret"
+  role = aws_iam_role.github_actions.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:PutParameter"]
+      Resource = local.amplitude_secret_parameter_arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "read_amplitude_secret" {
+  name = "read-amplitude-secret"
+  role = aws_iam_role.bmorozovcom.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ssm:GetParameter"]
+      Resource = local.amplitude_secret_parameter_arn
+    }]
   })
 }

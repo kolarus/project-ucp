@@ -95,10 +95,12 @@ rate limit.
 It needs the project's **secret key** at runtime as `AMPLITUDE_SECRET_KEY`, plus
 the API key above. Without them the page says stats aren't connected.
 
-- **Production** — the `AMPLITUDE_SECRET_KEY` GitHub Actions secret. The deploy
-  step passes it to the container at start; it's never baked into the image.
-  It does appear in the SSM Run Command's parameters, so it's retained in that
-  command's history in AWS.
+- **Production** — managed as the `AMPLITUDE_SECRET_KEY` GitHub Actions secret.
+  Each deploy writes it to Parameter Store (`/bmorozovcom/amplitude-secret-key`,
+  encrypted); the instance reads it from there when starting the container, so
+  the value never appears in the SSM command or its history, and it's never
+  baked into the image. Terraform grants the deploy role write access and the
+  instance read access to that one entry.
 - **Local** — `AMPLITUDE_SECRET_KEY` in `.env.local` (dev project).
 
 ## Structure

@@ -87,8 +87,10 @@ export function PersonalWebsite({ project }: { project: Project }) {
           </li>
           <li>
             SSM Run Command tells the EC2 host to pull the image and restart the
-            container, handing it the Amplitude secret key the stats page reads
-            with — at start, never baked into the image.
+            container. The Amplitude secret key the stats page reads with goes
+            the long way round: from a GitHub secret into Parameter Store,
+            encrypted, and from there to the container at start — never into the
+            image or the deploy command.
           </li>
           <li>
             Caddy on ports 80 and 443 proxies to the container on{" "}
@@ -110,7 +112,8 @@ export function PersonalWebsite({ project }: { project: Project }) {
             security group opens only 80 and 443 — access is through SSM.
           </li>
           <li>
-            An instance role that can read from ECR and be managed by SSM.
+            An instance role that can read from ECR, be managed by SSM, and read
+            its one secret from Parameter Store.
           </li>
           <li>The ECR repository and its lifecycle policy.</li>
           <li>

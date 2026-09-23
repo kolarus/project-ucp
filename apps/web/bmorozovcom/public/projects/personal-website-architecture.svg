@@ -58,7 +58,7 @@
   <text class="box-sub" x="412" y="186">OIDC → AWS role (no static keys)</text>
   <text class="box-sub" x="412" y="209">docker build (GIT_SHA, Amplitude key)</text>
   <text class="box-sub" x="412" y="232">push :sha and :latest</text>
-  <text class="box-sub" x="412" y="255">ssm deploy, Amplitude secret at start</text>
+  <text class="box-sub" x="412" y="255">secret → Parameter Store; ssm deploy</text>
   <text class="box-sub" x="412" y="285">context: repo root, -f apps/…/Dockerfile</text>
 
   <!-- AWS -->

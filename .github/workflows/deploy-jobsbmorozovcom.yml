@@ -1,0 +1,28 @@
+name: Deploy jobs.bmorozov.com
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/web/jobsbmorozovcom/**
+      # Workspace files every app image is built from.
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - packages/**
+      - .github/workflows/deploy-jobsbmorozovcom.yml
+      - .github/workflows/deploy-app.yml
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-app.yml
+    with:
+      app: jobsbmorozovcom
+      port: 3001

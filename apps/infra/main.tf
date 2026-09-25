@@ -118,9 +118,6 @@ resource "aws_instance" "bmorozovcom" {
   }
 
   user_data = templatefile("${path.module}/cloud-init.sh.tftpl", {
-    aws_region         = "eu-north-1"
-    ecr_repository_url = aws_ecr_repository.bmorozovcom.repository_url
-    ecr_registry       = split("/", aws_ecr_repository.bmorozovcom.repository_url)[0]
     caddyfile          = chomp(file("${path.module}/Caddyfile"))
   })
 
@@ -138,6 +135,11 @@ resource "aws_instance" "bmorozovcom" {
 
 resource "aws_ecr_repository" "bmorozovcom" {
   name                 = "personal/bmorozovcom"
+  image_tag_mutability = "MUTABLE"
+}
+
+resource "aws_ecr_repository" "jobsbmorozovcom" {
+  name = "personal/jobsbmorozovcom"
   image_tag_mutability = "MUTABLE"
 }
 
@@ -220,7 +222,10 @@ resource "aws_iam_role_policy" "github_actions_ecr" {
           "ecr:PutImage"
         ]
 
-        Resource = aws_ecr_repository.bmorozovcom.arn
+        Resource = [
+            aws_ecr_repository.bmorozovcom.arn,
+            aws_ecr_repository.jobsbmorozovcom.arn
+            ]
       }
     ]
   })
@@ -279,13 +284,37 @@ resource "aws_ecr_lifecycle_policy" "bmorozovcom" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep only the latest 10 commit images"
+        description  = "Keep only the latest 5 commit images"
 
         selection = {
           tagStatus     = "tagged"
           tagPatternList = ["*"]
           countType     = "imageCountMoreThan"
-          countNumber   = 10
+          countNumber   = 5
+        }
+
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_ecr_lifecycle_policy" "jobsbmorozovcom" {
+  repository = aws_ecr_repository.jobsbmorozovcom.name
+
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep only the latest 5 commit images"
+
+        selection = {
+          tagStatus      = "tagged"
+          tagPatternList = ["*"]
+          countType      = "imageCountMoreThan"
+          countNumber    = 5
         }
 
         action = {

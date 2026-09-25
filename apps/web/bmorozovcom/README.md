@@ -143,8 +143,11 @@ it, not a page of its own.
 No CMS: everything that changes between deploys lives in `src/config/`, one file
 per kind of content.
 
-- **New CV** — drop the file into `public/cv/`, point `cv.href` at it and bump
-  `cv.updated`.
+- **New CV** — add it to `public/cv/` with a date-stamped name
+  (`CV_Bohdan_Morozov_YYYY-MM.pdf`), point `cv.href` at it, bump `cv.updated`,
+  and delete the old file. A new name means a new URL, so Cloudflare and
+  browsers can't serve the old one from cache. `bmorozov.com/cv` and the
+  original `/cv/CV_Bohdan_Morozov.pdf` redirect to whatever `cv.href` is.
 - **New project** — add an entry to `projects` and put its screenshot in
   `public/projects/`.
 - **Stats, contact details, languages** — `about.ts` and `contact.ts`.

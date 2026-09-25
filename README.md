@@ -13,6 +13,7 @@ apps/
   infra/                 Terraform and the Caddyfile for the AWS side of it
   api/                   (empty for now)
 packages/                code shared between apps (none yet)
+scripts/                 repo tooling (the `pnpm dev` app picker)
 .github/workflows/       per-app deploy on push: build → push to ECR → deploy over SSM
 ```
 
@@ -25,6 +26,9 @@ One pnpm workspace: `pnpm install` at the root installs every app from a single
 lockfile, and `pnpm build` / `pnpm lint` there run across all of them. Run one
 app's scripts from its directory, or from the root with
 `pnpm --filter <app> <script>`.
+
+`pnpm dev` at the root asks which app to start (or all of them). Name it to skip
+the question — a unique prefix is enough, e.g. `pnpm dev jobs`.
 
 ## Adding a project
 

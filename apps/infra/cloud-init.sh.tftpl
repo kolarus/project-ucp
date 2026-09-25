@@ -40,10 +40,9 @@ apt-get install -y caddy
 # Caddy configuration
 # --------------------------------------------------
 
+# Later edits reach the running server via .github/workflows/deploy-caddy.yml, not this script.
 cat > /etc/caddy/Caddyfile <<'EOF'
-bmorozov.com, www.bmorozov.com {
-    reverse_proxy localhost:3000
-}
+${caddyfile}
 EOF
 
 systemctl enable caddy

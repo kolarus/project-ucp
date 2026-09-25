@@ -1,0 +1,35 @@
+name: Deploy bmorozov.com
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/web/bmorozovcom/**
+      # Workspace files every app image is built from.
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - packages/**
+      - .github/workflows/deploy-bmorozovcom.yml
+      - .github/workflows/deploy-app.yml
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-app.yml
+    with:
+      app: bmorozovcom
+      port: 3000
+      build-args: |
+        GIT_SHA=${{ github.sha }}
+        AMPLITUDE_API_KEY=${{ vars.AMPLITUDE_API_KEY }}
+        AMPLITUDE_SERVER_ZONE=${{ vars.AMPLITUDE_SERVER_ZONE || 'US' }}
+    secrets:
+      runtime-env: |
+        AMPLITUDE_SECRET_KEY=${{ secrets.AMPLITUDE_SECRET_KEY }}

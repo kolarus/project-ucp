@@ -9,9 +9,9 @@ const nextConfig: NextConfig = {
   // Emits .next/standalone: the server plus only the traced node_modules it
   // actually needs, which is what the Docker image runs.
   output: "standalone",
-  // This app carries its own lockfile, so trace from here. Without it Next
-  // walks up to the repo root and nests the output under apps/web/bmorozovcom.
-  outputFileTracingRoot: path.join(__dirname),
+  // Dependencies are installed at the pnpm workspace root, so tracing starts
+  // there; the standalone output nests the app under apps/web/bmorozovcom.
+  outputFileTracingRoot: path.join(__dirname, "../../.."),
 
   async redirects() {
     return [

@@ -4,6 +4,9 @@ Personal site for Bohdan Morozov — Next.js App Router, server-rendered by defa
 
 ## Develop
 
+Dependencies install from the repo root (`pnpm install` there — it's one pnpm
+workspace). Then, from this directory:
+
 ```bash
 pnpm dev     # http://localhost:3000
 pnpm build
@@ -20,14 +23,15 @@ docker build -f apps/web/bmorozovcom/Dockerfile -t bmorozovcom .
 docker run -p 3000:3000 bmorozovcom
 ```
 
-Every `COPY` in the Dockerfile is root-relative for that reason. The app is
-flattened into `/app` in the image rather than reproducing its path, and the
-root `.dockerignore` keeps `node_modules` and `.next` out of the context.
+Every `COPY` in the Dockerfile is root-relative for that reason. The app is a
+package in the root pnpm workspace, so the image mirrors the repo layout under
+`/app` and runs `apps/web/bmorozovcom/server.js`; the root `.dockerignore` keeps
+`node_modules` and `.next` out of the context.
 
-Multi-stage build on `node:22-alpine`: dependencies, `next build`, then a
-runtime stage carrying only `.next/standalone` (`output: "standalone"`) plus
-`.next/static` and `public/`. Runs as a non-root user on port 3000 — override
-with `PORT` and `HOSTNAME`. Image is ~295MB.
+Multi-stage build on `node:22-alpine`: this app's dependencies from the root
+lockfile, `next build`, then a runtime stage carrying only `.next/standalone`
+(`output: "standalone"`) plus `.next/static` and `public/`. Runs as a non-root
+user on port 3000 — override with `PORT` and `HOSTNAME`. Image is ~295MB.
 
 ## Analytics
 

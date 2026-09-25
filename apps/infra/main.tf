@@ -121,16 +121,18 @@ resource "aws_instance" "bmorozovcom" {
     aws_region         = "eu-north-1"
     ecr_repository_url = aws_ecr_repository.bmorozovcom.repository_url
     ecr_registry       = split("/", aws_ecr_repository.bmorozovcom.repository_url)[0]
+    caddyfile          = chomp(file("${path.module}/Caddyfile"))
   })
 
   user_data_replace_on_change = true
 
   lifecycle {
-    # `data.aws_ami.ubuntu` resolves to the newest Ubuntu image on every run.
-    # Without this, each new Canonical release would make Terraform replace
-    # the running server (downtime, new instance ID). New AMIs apply only
-    # when the instance is created from scratch.
-    ignore_changes = [ami]
+    # Either would otherwise replace the running server (downtime, new
+    # instance ID): `data.aws_ami.ubuntu` resolves to the newest Ubuntu image
+    # on every run, and user_data changes whenever the Caddyfile does. Both
+    # apply only when the instance is created from scratch; the running server
+    # gets Caddyfile changes from .github/workflows/deploy-caddy.yml.
+    ignore_changes = [ami, user_data]
   }
 }
 

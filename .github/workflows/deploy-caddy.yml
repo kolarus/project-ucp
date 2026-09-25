@@ -1,0 +1,74 @@
+name: Deploy Caddy config
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/infra/Caddyfile
+      - .github/workflows/deploy-caddy.yml
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-north-1
+  # Every app runs on this one instance (apps/infra).
+  INSTANCE_NAME: bmorozovcom
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Validated before it replaces the live file; a reload that fails keeps the old config.
+      - name: Push Caddyfile and reload Caddy
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters \
+              "Name=tag:Name,Values=$INSTANCE_NAME" \
+              "Name=instance-state-name,Values=running" \
+            --query 'Reservations[0].Instances[0].InstanceId' \
+            --output text)
+
+          echo "Pushing Caddyfile to $INSTANCE_ID"
+
+          # base64 keeps the file intact inside the SSM command.
+          caddyfile=$(base64 -w0 apps/infra/Caddyfile)
+          commands=(
+            "set -e"
+            "echo $caddyfile | base64 -d > /tmp/Caddyfile"
+            "caddy validate --config /tmp/Caddyfile"
+            "install -m 644 /tmp/Caddyfile /etc/caddy/Caddyfile"
+            "systemctl reload-or-restart caddy"
+          )
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$(jq -n '{commands: $ARGS.positional}' --args "${commands[@]}")" \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM command: $COMMAND_ID"
+
+          if ! aws ssm wait command-executed --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID"; then
+            aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "$INSTANCE_ID" \
+              --query '[StandardOutputContent, StandardErrorContent]' \
+              --output text
+            exit 1
+          fi

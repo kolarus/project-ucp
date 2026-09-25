@@ -1,2 +1,8 @@
 packages:
-  - "apps/*"
+  - "apps/web/*"
+  - "packages/*"
+
+# pnpm 10 skips dependency install scripts unless approved; both ship prebuilt binaries.
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

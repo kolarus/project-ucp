@@ -2,7 +2,7 @@
 
 # Build from the REPO ROOT, pointing at this file:
 #
-#   docker build -f apps/web/bmorozovcom/Dockerfile -t bmorozovcom .
+#   docker build -f apps/web/jobsbmorozovcom/Dockerfile -t jobsbmorozovcom .
 #
 # The app is a package in the root pnpm workspace, so the context is the root
 # (the lockfile and workspace config live there) and the image mirrors the
@@ -19,26 +19,17 @@ WORKDIR /app
 # ---- dependencies -----------------------------------------------------------
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web/bmorozovcom/package.json ./apps/web/bmorozovcom/
+COPY apps/web/jobsbmorozovcom/package.json ./apps/web/jobsbmorozovcom/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter bmorozovcom...
+    pnpm install --frozen-lockfile --filter jobsbmorozovcom...
 
 # ---- build ------------------------------------------------------------------
 FROM base AS builder
-# The commit this image was built from. NEXT_PUBLIC_* is inlined by next build,
-# so the footer carries the SHA of the code it was actually built from.
-ARG GIT_SHA
-ENV NEXT_PUBLIC_GIT_SHA=$GIT_SHA
-# Amplitude browser keys ship to every visitor, so this is config, not a secret.
-# Unset = analytics off.
-ARG AMPLITUDE_API_KEY
-ARG AMPLITUDE_SERVER_ZONE=US
-ENV NEXT_PUBLIC_AMPLITUDE_API_KEY=$AMPLITUDE_API_KEY
-ENV NEXT_PUBLIC_AMPLITUDE_SERVER_ZONE=$AMPLITUDE_SERVER_ZONE
 COPY --from=deps /app ./
-COPY apps/web/bmorozovcom/ ./apps/web/bmorozovcom/
-WORKDIR /app/apps/web/bmorozovcom
-RUN pnpm build
+COPY apps/web/jobsbmorozovcom/ ./apps/web/jobsbmorozovcom/
+WORKDIR /app/apps/web/jobsbmorozovcom
+# public/ isn't in git until the app has static assets; the runner copies it.
+RUN mkdir -p public && pnpm build
 
 # ---- run --------------------------------------------------------------------
 FROM base AS runner
@@ -51,9 +42,9 @@ RUN addgroup -g 1001 -S nodejs && adduser -u 1001 -S nextjs -G nodejs
 # server.js plus its traced dependencies, laid out from the repo root; static
 # assets and public/ are not included in the standalone output and have to be
 # copied alongside it.
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/bmorozovcom/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/bmorozovcom/.next/static ./apps/web/bmorozovcom/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/bmorozovcom/public ./apps/web/bmorozovcom/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/jobsbmorozovcom/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/jobsbmorozovcom/.next/static ./apps/web/jobsbmorozovcom/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/jobsbmorozovcom/public ./apps/web/jobsbmorozovcom/public
 
 USER nextjs
 EXPOSE 3000
@@ -61,4 +52,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --spider -q http://127.0.0.1:3000/ || exit 1
 
-CMD ["node", "apps/web/bmorozovcom/server.js"]
+CMD ["node", "apps/web/jobsbmorozovcom/server.js"]

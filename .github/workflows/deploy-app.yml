@@ -1,0 +1,150 @@
+name: Deploy app
+
+# Shared steps only; each app's deploy-<app>.yml decides when it runs.
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        description: Directory under apps/web. Also names the ECR repository (personal/<app>), the container and the Parameter Store prefix (/<app>/).
+        type: string
+        required: true
+      port:
+        description: Port on the instance's loopback that Caddy proxies the app's domain to.
+        type: number
+        required: true
+      build-args:
+        description: Docker build args, one KEY=VALUE per line.
+        type: string
+        default: ""
+    secrets:
+      runtime-env:
+        description: Env vars for the container, one NAME=value per line. Parked in Parameter Store as /<app>/<name-in-kebab-case> and read by the instance at startup, so values never appear in the SSM command.
+        required: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-north-1
+  # Every app runs on this one instance (apps/infra).
+  INSTANCE_NAME: bmorozovcom
+  APP: ${{ inputs.app }}
+  ECR_REPOSITORY: personal/${{ inputs.app }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          BUILD_ARGS: ${{ inputs.build-args }}
+        run: |
+          build_args=()
+          while IFS= read -r arg; do
+            [ -z "$arg" ] && continue
+            build_args+=(--build-arg "$arg")
+          done <<< "$BUILD_ARGS"
+
+          docker build \
+            --platform linux/amd64 \
+            "${build_args[@]}" \
+            -f "apps/web/$APP/Dockerfile" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            .
+
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      # Warns rather than blocks: the instance then uses whatever Parameter Store already holds.
+      - name: Store runtime secrets in Parameter Store
+        id: runtime-env
+        env:
+          RUNTIME_ENV: ${{ secrets.runtime-env }}
+        run: |
+          names=""
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            name=${line%%=*}
+            value=${line#*=}
+            names+=" $name"
+
+            if [ -z "$value" ]; then
+              echo "::warning::$name is empty, so it wasn't stored."
+              continue
+            fi
+
+            aws ssm put-parameter \
+              --name "/$APP/$(echo "$name" | tr 'A-Z_' 'a-z-')" \
+              --type SecureString \
+              --value "$value" \
+              --overwrite > /dev/null \
+              || echo "::warning::Could not store $name in Parameter Store."
+          done <<< "$RUNTIME_ENV"
+
+          echo "names=$names" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to EC2
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          HOST_PORT: ${{ inputs.port }}
+          RUNTIME_ENV_NAMES: ${{ steps.runtime-env.outputs.names }}
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters \
+              "Name=tag:Name,Values=$INSTANCE_NAME" \
+              "Name=instance-state-name,Values=running" \
+            --query 'Reservations[0].Instances[0].InstanceId' \
+            --output text)
+
+          echo "Deploying $APP $IMAGE_TAG to $INSTANCE_ID"
+
+          image="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          commands=(
+            "aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY"
+            "docker pull $image"
+            "docker rm -f $APP || true"
+          )
+          env_flags=""
+          for name in $RUNTIME_ENV_NAMES; do
+            parameter="/$APP/$(echo "$name" | tr 'A-Z_' 'a-z-')"
+            commands+=("export $name=\$(aws ssm get-parameter --region $AWS_REGION --name $parameter --with-decryption --query Parameter.Value --output text 2>/dev/null || true)")
+            env_flags+=" -e $name"
+          done
+          commands+=("docker run -d --name $APP --restart unless-stopped -p 127.0.0.1:$HOST_PORT:3000$env_flags $image")
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$(jq -n '{commands: $ARGS.positional}' --args "${commands[@]}")" \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM command: $COMMAND_ID"
+
+          aws ssm wait command-executed \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID"
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$INSTANCE_ID"

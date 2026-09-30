@@ -19,7 +19,7 @@ has its own `AGENTS.md` too; read both when working in an app.
 | Workspace, dependencies, Dockerfiles | [0002](docs/adr/0002-pnpm-workspace.md) |
 | Next.js, TypeScript, styling, rendering, Node version | [0003](docs/adr/0003-web-stack.md) |
 | Server, Caddy, Cloudflare, Terraform | [0004](docs/adr/0004-hosting-and-infrastructure.md) |
-| Deploy workflows, secrets | [0005](docs/adr/0005-delivery-and-secrets.md) |
+| Deploy workflows, CI checks, secrets | [0005](docs/adr/0005-delivery-and-secrets.md) |
 | Commits and agent rules | [0006](docs/adr/0006-contribution-workflow.md) |
 | Checks, lint and TypeScript config, git hooks | [0007](docs/adr/0007-validation-and-enforcement.md) |
 | Tests and visual snapshots | [0008](docs/adr/0008-testing-strategy.md) |
@@ -32,7 +32,7 @@ apps/infra/          Terraform (main.tf), cloud-init, Caddyfile
 packages/            shared config: tsconfig, eslint-config (code later, when two apps need it)
 docs/adr/            decision records
 scripts/             repo tooling: `pnpm dev` app picker, check-docs, test-visual
-.github/workflows/   deploy-<app>.yml → deploy-app.yml; deploy-caddy.yml
+.github/workflows/   validate.yml and deploy-<app>.yml → deploy-app.yml both run checks.yml; deploy-caddy.yml
 .claude/skills/      agent skills (adr-new)
 ```
 
@@ -72,8 +72,10 @@ scripts/             repo tooling: `pnpm dev` app picker, check-docs, test-visua
   `pnpm test:visual` when anything visible could have changed. Report failures
   with their output. Needs Node 24: `nvm use` reads `.nvmrc`.
   ([0007](docs/adr/0007-validation-and-enforcement.md))
-- **Pushing to `main` deploys** every app whose files changed. A change to the
-  root `package.json`, lockfile or workspace config redeploys every app.
+- **Pushing to `main` deploys** every app whose files changed, once CI's checks
+  (`pnpm validate` and that app's visual snapshots) pass. Every push to any
+  branch runs the checks too. A change to the root `package.json`, lockfile or
+  workspace config redeploys every app.
   ([0002](docs/adr/0002-pnpm-workspace.md), [0005](docs/adr/0005-delivery-and-secrets.md))
 - **Decisions:** hard to reverse, cross-cutting, or with a credible alternative
   → ADR (use the `adr-new` skill); local and cheap to change → the app's README;

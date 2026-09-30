@@ -61,8 +61,7 @@ command.**
 send commands only to the instance and only with `AWS-RunShellScript`; read
 command results; write only the listed parameters.
 
-**No validation gate yet.** The only automatic check before a deploy is the
-type check inside `next build`.
+**Validation gate:** nothing deploys until the checks pass (amendment below).
 
 ## Alternatives considered
 
@@ -99,7 +98,8 @@ Negative / accepted costs:
 - A change to root workspace files redeploys every app (ADR-0002).
 - The running container's environment still holds its secrets, as any process
   environment does. Anyone with SSM access to the instance can read them.
-- Until validation runs before deploys, lint errors and failing checks can ship.
+- Until 2026-09-30, failing checks could ship; the validation gate (amendment
+  below) closed that.
 
 ## Enforcement
 
@@ -109,6 +109,29 @@ Negative / accepted costs:
 
 ## References
 
-- `.github/workflows/deploy-app.yml`, `deploy-<app>.yml`, `deploy-caddy.yml`
+- `.github/workflows/deploy-app.yml`, `deploy-<app>.yml`, `deploy-caddy.yml`,
+  `checks.yml`, `validate.yml`
 - `apps/infra/main.tf` (OIDC provider, roles, ECR, parameter access)
 - https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+
+## Amendment 2026-09-30: validation gate
+
+- **The checks live in one reusable workflow, `checks.yml`,** with two jobs:
+  - `validate`: `pnpm validate` on the Node version in `.nvmrc` (ADR-0007);
+  - `visual`: `pnpm test:visual` inside the Playwright image (ADR-0008). When
+    it fails, the expected, actual and diff images are attached to the run as
+    the `visual-diffs` artifact.
+- **Every push to any branch runs them** (`validate.yml`), including pushes that
+  deploy nothing, such as docs or infrastructure.
+- **Every deploy runs them first.** `deploy-app.yml` calls `checks.yml` for its
+  app, with the visual snapshots limited to that app, and the deploy job
+  `needs` it. A red check never deploys.
+- `checks.yml` is in every deploy workflow's `paths` filter.
+
+A push to `main` runs the checks more than once: in `validate.yml` and in each
+app's deploy. Accepted: the runs are parallel, and each deploy stays
+self-contained. The alternative, deploying from a `workflow_run` trigger after
+`validate.yml` succeeds, runs the checks once but has no `paths` filter, so
+every push would redeploy every app.
+
+Enforcement: `needs: checks` in `deploy-app.yml`.

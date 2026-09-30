@@ -58,8 +58,8 @@ Positive:
 
 Negative / accepted costs:
 
-- Nothing technically stops a broken commit from reaching `main`, and pushes to
-  `main` deploy. Planned: validation in a pre-push hook and in CI before deploys.
+- Nothing technically stops a broken commit from reaching `main`: hooks can be
+  skipped. Deploys can't be: they wait for CI's checks (ADR-0005).
 - No pull-request discussion record; the reasoning lives in ADRs and commit
   messages.
 
@@ -68,7 +68,7 @@ Negative / accepted costs:
 - `AGENTS.md` states the agent rules.
 - GitHub settings: pull request creation limited to collaborators, issues
   disabled.
-- Planned: commitlint in a `commit-msg` hook for the commit format.
+- commitlint in the `commit-msg` hook checks the commit format (ADR-0007).
 
 ## References
 
@@ -78,4 +78,4 @@ Negative / accepted costs:
 
 The commit format is now checked by commitlint in the `commit-msg` hook, and
 `pnpm validate` runs in the `pre-push` hook (ADR-0007). Validation in CI before
-deploys is still planned.
+deploys is in place too (ADR-0005 amendment).

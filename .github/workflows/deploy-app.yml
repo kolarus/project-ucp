@@ -34,7 +34,15 @@ env:
   ECR_REPOSITORY: personal/${{ inputs.app }}
 
 jobs:
+  # Nothing deploys unless the repository checks and this app's visual
+  # snapshots pass (ADR-0005).
+  checks:
+    uses: ./.github/workflows/checks.yml
+    with:
+      app: ${{ inputs.app }}
+
   deploy:
+    needs: checks
     runs-on: ubuntu-latest
 
     steps:

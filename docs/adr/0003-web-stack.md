@@ -33,9 +33,8 @@ skills, tooling and deployment. The apps are self-hosted in containers
   server, which is what the container runs.
 - **Fonts** through `next/font`, self-hosted at build time, with no requests to
   a font CDN at runtime.
-- **Node 24 LTS** everywhere: local, CI and images. Rollout pending: the images
-  still run Node 22 until the pin lands (`.nvmrc`, `engines`,
-  `node:24-alpine`).
+- **Node 24 LTS** everywhere: local, CI and images. Rolled out 2026-09-30
+  (amendment below).
 - **Next.js 16 differs from older versions** in APIs and conventions. Read the
   docs bundled in `node_modules/next/dist/docs/` before relying on memory; each
   app's `AGENTS.md` carries Next's own note on this.
@@ -54,7 +53,8 @@ skills, tooling and deployment. The apps are self-hosted in containers
 - **CSS Modules or CSS-in-JS** instead of Tailwind. Tailwind keeps styles next
   to markup without extra files; runtime CSS-in-JS conflicts with server
   components.
-- **Node 22** (what the images run today). Supported until April 2027. Node 24
+- **Node 22** (what the images ran until 2026-09-30). Supported until April
+  2027. Node 24
   is the current LTS with the longest support window, and a single version
   everywhere removes local/production differences.
 
@@ -77,8 +77,8 @@ Negative / accepted costs:
 
 - `next build` type-checks (strict mode, typed routes); `server-only` fails the
   build when secret-reading code is imported from client code.
-- Linting (`eslint-config-next`) exists but runs only on demand today: Next 16's
-  `next build` no longer lints. Planned: lint in the validation pipeline.
+- Next 16's `next build` no longer lints, so lint runs in `pnpm validate`: in
+  the pre-push hook and in CI before every deploy (ADR-0007, ADR-0005).
 
 ## References
 

@@ -99,7 +99,7 @@ Negative / accepted costs:
 
 - A visual run takes minutes: two production builds and a browser, under
   amd64 emulation on Apple Silicon. It's too slow for the pre-push hook, so CI
-  runs it (planned: ADR-0005 amendment).
+  runs it on every push and before every deploy (ADR-0005).
 - Running it locally needs Docker.
 - Baselines add PNGs to the repository with every intended visual change.
 - Screenshots can't see behaviour: a copy button that stopped copying, or a
@@ -109,7 +109,8 @@ Negative / accepted costs:
 ## Enforcement
 
 - `pnpm validate` runs the unit tests (ADR-0007).
-- `pnpm test:visual`; planned: CI runs it before every deploy.
+- `pnpm test:visual`, run by CI on every push and before every deploy
+  (`checks.yml`, ADR-0005).
 - `AGENTS.md` states the testing rule for agents.
 
 ## References

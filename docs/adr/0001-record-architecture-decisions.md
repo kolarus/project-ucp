@@ -98,10 +98,17 @@ Negative / accepted costs:
   change against the relevant ADR.
 - The `adr-new` skill (`.claude/skills/adr-new`) scaffolds the next ADR and its
   index row, and first checks whether the decision needs an ADR at all.
-- Planned: an automated docs check in the validation pipeline (numbering,
-  statuses, index entries, links).
+- `pnpm check-docs` (ADR-0007) checks numbering, headers, index rows and
+  links, in the pre-push hook and in CI.
 
 ## References
 
 - Michael Nygard, "Documenting Architecture Decisions" (2011)
 - MADR: https://adr.github.io/madr/
+
+## Amendment 2026-09-30: status notes
+
+Some lines record progress rather than a decision: "Planned: …", "not … yet",
+"rollout pending". When the plan lands, such a line is updated in place to say
+what's true now and where that's recorded. It describes progress, not the
+decision, so it needs no amendment of its own.

@@ -1,0 +1,15 @@
+name: Validate
+
+# Every push to any branch, including pushes that deploy nothing (docs, infra,
+# scripts). Deploys run the same checks themselves before deploying.
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml

@@ -18,8 +18,8 @@ whatever isn't checked before the push reaches production.
 ## Decision
 
 **One command, `pnpm validate`, answers "is this safe to push?"** It's the same
-command locally, in the pre-push hook and, once the CI gate lands, in CI. It
-runs the cheap checks first:
+command locally, in the pre-push hook and in CI. It runs the cheap checks
+first:
 
 | Step | Tool | Checks |
 |---|---|---|
@@ -92,9 +92,9 @@ Positive:
 Negative / accepted costs:
 
 - Every push waits for `pnpm validate`.
-- Hooks only run where `pnpm install` ran, and `--no-verify` skips them. Until
-  CI runs the same command before deploys (planned: ADR-0005 amendment), a
-  skipped hook can still ship a failing change.
+- Hooks only run where `pnpm install` ran, and `--no-verify` skips them. CI
+  runs the same checks on every push and before every deploy (ADR-0005), so a
+  skipped hook can't ship a failing change.
 - `eslint-config-next` is pinned in the shared package and must move together
   with `next` in the apps.
 - The checks need Node 24: the type-stripped scripts don't run on older Node.
@@ -103,7 +103,8 @@ Negative / accepted costs:
 
 - `lefthook.yml`: `commit-msg` and `pre-push` hooks.
 - Root `package.json` scripts: `validate` and its steps.
-- Planned: the same `pnpm validate` in CI before every deploy.
+- CI: the same `pnpm validate` on every push and before every deploy
+  (`checks.yml`, ADR-0005).
 
 ## References
 

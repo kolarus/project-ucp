@@ -15,7 +15,7 @@ apps/
 packages/                shared config (tsconfig, eslint-config); shared code later
 docs/adr/                architecture decision records, one log for every project
 scripts/                 repo tooling: `pnpm dev` app picker, docs check, visual snapshots
-.github/workflows/       per-app deploy on push: build → push to ECR → deploy over SSM
+.github/workflows/       checks on every push; per-app deploy on push: checks → build → ECR → SSM
 .claude/skills/          agent skills; AGENTS.md is the agents' entry point
 ```
 
@@ -52,6 +52,9 @@ fails.
   baselines, inside the Playwright Docker image; it needs Docker. After an
   intended visual change, `pnpm test:visual:update` regenerates the baselines
   to review and commit ([ADR-0008](docs/adr/0008-testing-strategy.md)).
+- CI runs both on every push to any branch, and every deploy waits for them:
+  a red check never deploys ([ADR-0005](docs/adr/0005-delivery-and-secrets.md)).
+  A failed visual run attaches its diff images to the run as `visual-diffs`.
 
 ## Adding a project
 
@@ -63,11 +66,11 @@ the shared packages, and it gets a `playwright.config.ts` and
 goes in `packages/`.
 
 To deploy it, add a `.github/workflows/deploy-<app>.yml` like
-`deploy-bmorozovcom.yml`: its `paths` filter means a push only deploys the apps
-it touched (plus the root workspace files and `packages/`, which every image is
-built from), and the build and deploy steps are shared in `deploy-app.yml`. The
-app first needs an ECR repository (`personal/<app>`) and a site in
-`apps/infra/Caddyfile`, which `deploy-caddy.yml` pushes to the server.
+`deploy-bmorozovcom.yml`. Its `paths` filter means a push only deploys the apps
+it touched, plus every app when the root workspace files, `packages/` or the
+shared workflows change. The checks, build and deploy steps are shared in
+`deploy-app.yml`. The app first needs an ECR repository (`personal/<app>`) and a
+site in `apps/infra/Caddyfile`, which `deploy-caddy.yml` pushes to the server.
 
 ## Contributions
 

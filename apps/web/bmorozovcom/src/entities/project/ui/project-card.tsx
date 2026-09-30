@@ -44,7 +44,7 @@ export function ProjectCard({
       </div>
       <div className="flex flex-1 flex-col gap-5 p-6 lg:p-8">
         <div className="flex flex-col gap-2">
-          <h3 className="text-xl font-semibold tracking-tight">
+          <h2 className="text-xl font-semibold tracking-tight">
             {/* Stretched link: the anchor covers the card, so the whole row is
                 clickable while the accessible name stays the project name. */}
             <Link
@@ -58,7 +58,7 @@ export function ProjectCard({
             >
               {project.name}
             </Link>
-          </h3>
+          </h2>
           <p className="max-w-prose text-sm leading-6 text-muted">
             {project.description}
           </p>

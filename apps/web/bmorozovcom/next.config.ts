@@ -24,6 +24,17 @@ const nextConfig: NextConfig = {
         destination: cv.href,
         permanent: false,
       },
+      // Earlier names of the architecture diagram, which gets a new
+      // date-stamped name when it changes. They lead to its page, whose URL
+      // doesn't change.
+      ...[
+        "/projects/personal-website-architecture.svg",
+        "/projects/personal-website-architecture-2026-09.svg",
+      ].map((source) => ({
+        source,
+        destination: "/projects/personal-website/architecture",
+        permanent: false,
+      })),
     ];
   },
 };

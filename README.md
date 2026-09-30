@@ -29,6 +29,22 @@ Significant decisions are recorded as Architecture Decision Records in
 considered, and how it's checked. They're binding for every change, human or
 agent. Start with the [index](docs/adr/README.md).
 
+## Architecture
+
+- **Apps:** Next.js App Router, rendered on the server by default
+  ([ADR-0003](docs/adr/0003-web-stack.md)). Every app's `src/` has the same five
+  layers, `app → views → features → entities → shared`. A layer imports only
+  the layers below it, and other slices only through their `index.ts`; lint and
+  `check-architecture` enforce it
+  ([ADR-0009](docs/adr/0009-layered-structure.md)).
+- **Packages:** config every app extends (TypeScript, ESLint). Code moves here
+  only once a second app needs it unchanged.
+- **Delivery:** every push runs the checks and the screenshot comparison. A
+  push to `main` deploys each changed app to one EC2 host behind Caddy and
+  Cloudflare, only after its checks pass
+  ([ADR-0004](docs/adr/0004-hosting-and-infrastructure.md),
+  [ADR-0005](docs/adr/0005-delivery-and-secrets.md)).
+
 ## Workspace
 
 One pnpm workspace: `pnpm install` at the root installs every app from a single
@@ -45,7 +61,7 @@ fails.
 ## Checks
 
 - `pnpm validate` runs every fast check: formatting, the ADRs and doc links,
-  types, unit tests, lint and unused code
+  the folder structure, types, unit tests, lint and unused code
   ([ADR-0007](docs/adr/0007-validation-and-enforcement.md)). The pre-push hook
   runs it, and commit messages are checked against Conventional Commits.
 - `pnpm test:visual` screenshots every page and compares it with the committed

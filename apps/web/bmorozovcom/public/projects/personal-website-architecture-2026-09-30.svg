@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 750" width="1120" height="750" role="img" aria-labelledby="title desc">
   <title id="title">bmorozov.com — build and deploy architecture</title>
-  <desc id="desc">A push to main runs GitHub Actions, which builds a Docker image, pushes it to Amazon ECR and deploys it over SSM to an EC2 host where Caddy reverse-proxies the Next.js container. Terraform provisions the AWS resources; Cloudflare provides DNS and proxying for visitors, whose browsers send analytics events to Amplitude; the stats page reads them back server-side through the Dashboard REST API.</desc>
+  <desc id="desc">A push to main runs GitHub Actions, which runs the checks and, once they pass, builds a Docker image, pushes it to Amazon ECR and deploys it over SSM to an EC2 host where Caddy reverse-proxies the Next.js container. Terraform provisions the AWS resources; Cloudflare provides DNS and proxying for visitors, whose browsers send analytics events to Amplitude; the stats page reads them back server-side through the Dashboard REST API.</desc>
 
   <style>
     text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #171717; }
@@ -55,11 +55,12 @@
   <!-- CI -->
   <rect class="box" x="396" y="136" width="260" height="170" rx="10"/>
   <text class="box-title" x="412" y="162">GitHub Actions</text>
-  <text class="box-sub" x="412" y="186">OIDC → AWS role (no static keys)</text>
-  <text class="box-sub" x="412" y="209">docker build (GIT_SHA, Amplitude key)</text>
-  <text class="box-sub" x="412" y="232">push :sha and :latest</text>
-  <text class="box-sub" x="412" y="255">secret → Parameter Store; ssm deploy</text>
-  <text class="box-sub" x="412" y="285">context: repo root, -f apps/…/Dockerfile</text>
+  <text class="box-sub" x="412" y="184">checks: validate + page screenshots</text>
+  <text class="box-sub" x="412" y="205">OIDC → AWS role (no static keys)</text>
+  <text class="box-sub" x="412" y="226">docker build (GIT_SHA, Amplitude key)</text>
+  <text class="box-sub" x="412" y="247">push :sha and :latest</text>
+  <text class="box-sub" x="412" y="268">secret → Parameter Store; ssm deploy</text>
+  <text class="box-sub" x="412" y="292">context: repo root, -f apps/…/Dockerfile</text>
 
   <!-- AWS -->
   <rect class="group" x="760" y="100" width="320" height="420" rx="12"/>

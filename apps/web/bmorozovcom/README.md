@@ -14,8 +14,9 @@ pnpm lint    # also: pnpm typecheck, pnpm test
 ```
 
 Repository-wide checks run from the root: `pnpm validate`, and
-`pnpm test:visual bmorozovcom` for this app's screenshots against its baselines in
-`tests/visual/` ([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
+`pnpm test:visual bmorozovcom` for this app's screenshots against its
+baselines in `tests/visual/`
+([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
 
 ## Deploy
 
@@ -32,7 +33,7 @@ package in the root pnpm workspace, so the image mirrors the repo layout under
 `/app` and runs `apps/web/bmorozovcom/server.js`; the root `.dockerignore` keeps
 `node_modules` and `.next` out of the context.
 
-Multi-stage build on `node:22-alpine`: this app's dependencies from the root
+Multi-stage build on `node:24-alpine`: this app's dependencies from the root
 lockfile, `next build`, then a runtime stage carrying only `.next/standalone`
 (`output: "standalone"`) plus `.next/static` and `public/`. Runs as a non-root
 user on port 3000 — override with `PORT` and `HOSTNAME`. Image is ~295MB.
@@ -122,7 +123,7 @@ only the ones below it ([ADR-0009](../../../docs/adr/0009-layered-structure.md))
 src/
   app/                        routes only: each page renders one view; icons, layout
   views/                      one slice per page, plus site-shell (header, nav, footer)
-    about/ contact/ projects/ project/ project-architecture/ project-stats/
+    about/ contact/ projects/ project/ project-architecture/ project-stats/ not-found/
   features/                   what visitors do
     download-cv/ copy-contact/ pick-stats-range/
   entities/                   the site's things: data and how they look

@@ -37,7 +37,7 @@ packages/            shared config: tsconfig, eslint-config (code later, when tw
 docs/adr/            decision records
 scripts/             repo tooling: `pnpm dev` app picker, check-docs, check-architecture, test-visual
 .github/workflows/   validate.yml and deploy-<app>.yml → deploy-app.yml both run checks.yml; deploy-caddy.yml
-.claude/skills/      agent skills (adr-new, where-does-it-go)
+.claude/skills/      agent skills (adr-new, where-does-it-go, web-review)
 ```
 
 ## Where code goes
@@ -99,7 +99,9 @@ app → views → features → entities → shared
 - **Checks before handing over:** `pnpm validate` at the root (format, docs,
   structure, types, unit tests, lint, unused code; about 10 seconds), plus
   `pnpm test:visual` when anything visible could have changed. Report failures
-  with their output. Needs Node 24: `nvm use` reads `.nvmrc`.
+  with their output. Needs Node 24: `nvm use` reads `.nvmrc`. At the end of a
+  phase or before a release, also run the `web-review` skill, which covers what
+  the checks can't see.
   ([0007](docs/adr/0007-validation-and-enforcement.md))
 - **Pushing to `main` deploys** every app whose files changed, once CI's checks
   (`pnpm validate` and that app's visual snapshots) pass. Every push to any

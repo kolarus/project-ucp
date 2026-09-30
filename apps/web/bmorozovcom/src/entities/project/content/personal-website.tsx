@@ -80,8 +80,13 @@ export function PersonalWebsite({ project }: { project: Project }) {
       <Section title="Delivery pipeline">
         <ol className="flex max-w-3xl list-decimal flex-col gap-2 pl-5 leading-7">
           <li>
-            A push to <Code>main</Code> triggers GitHub Actions, which assumes
-            an AWS role through OIDC.
+            A push to <Code>main</Code> triggers GitHub Actions. The checks run
+            first: formatting, types, lint, the few unit tests, the decision
+            records and the code structure, then a screenshot of every page
+            compared with its approved one. Anything red stops the deploy.
+          </li>
+          <li>
+            Once they pass, the deploy job assumes an AWS role through OIDC.
           </li>
           <li>
             <Code>docker build</Code> runs from the repo root with the

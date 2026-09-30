@@ -54,7 +54,7 @@ export const projects: readonly Project[] = [
     },
     diagram: {
       // Date-stamped too: a changed diagram gets a new URL.
-      src: "/projects/personal-website-architecture-2026-09.svg",
+      src: "/projects/personal-website-architecture-2026-09-30.svg",
       width: 1120,
       height: 750,
     },

@@ -41,45 +41,52 @@ export function CopyButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={() => void copy()}
-      {...tracking}
-      aria-label={copied ? `${label} copied` : `Copy ${label}`}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-        className,
-      )}
-    >
-      {copied ? (
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-        >
-          <path d="m20 6-11 11-5-5" />
-        </svg>
-      ) : (
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-3.5"
-        >
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-          <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-        </svg>
-      )}
-      {copied ? "Copied" : "Copy"}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => void copy()}
+        {...tracking}
+        aria-label={`Copy ${label}`}
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+          className,
+        )}
+      >
+        {copied ? (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-3.5"
+          >
+            <path d="m20 6-11 11-5-5" />
+          </svg>
+        ) : (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-3.5"
+          >
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+          </svg>
+        )}
+        {copied ? "Copied" : "Copy"}
+      </button>
+      {/* A changed label on the focused button isn't reliably read out; a
+          status region is. */}
+      <span role="status" className="sr-only">
+        {copied ? `${label} copied` : ""}
+      </span>
+    </>
   );
 }

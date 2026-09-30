@@ -5,7 +5,10 @@ applications on a simple board and get analytics on their hiring funnel; my own
 stats are public, so my hiring progress can be followed directly.
 
 Next.js App Router app, a package in the repo's pnpm workspace with its own
-`Dockerfile`. Frontend only for now — the home page is a placeholder.
+`Dockerfile`. Frontend only for now — the home page is a placeholder. Its `src/`
+follows the same layers as every app
+([ADR-0009](../../../docs/adr/0009-layered-structure.md)); so far only
+`views/home` and the routes in `app/`.
 
 ## Develop
 
@@ -19,8 +22,9 @@ pnpm lint    # also: pnpm typecheck
 ```
 
 Repository-wide checks run from the root: `pnpm validate`, and
-`pnpm test:visual jobsbmorozovcom` for this app's screenshots against its baselines in
-`tests/visual/` ([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
+`pnpm test:visual jobsbmorozovcom` for this app's screenshots against its
+baselines in `tests/visual/`
+([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
 
 Runs on port 3001 so it doesn't collide with bmorozovcom on 3000.
 
@@ -36,7 +40,7 @@ docker build -f apps/web/jobsbmorozovcom/Dockerfile -t jobsbmorozovcom .
 docker run -p 3001:3000 jobsbmorozovcom
 ```
 
-Same multi-stage `node:22-alpine` build as bmorozovcom: dependencies,
+Same multi-stage `node:24-alpine` build as bmorozovcom: dependencies,
 `next build`, then a runtime stage with only `.next/standalone`
 (`output: "standalone"`), `.next/static` and `public/`. Runs as a non-root user
 on port 3000 inside the container.

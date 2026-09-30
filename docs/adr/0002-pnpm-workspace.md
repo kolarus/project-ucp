@@ -81,3 +81,21 @@ Negative / accepted costs:
 - `pnpm-workspace.yaml`, root `package.json`
 - `apps/web/*/Dockerfile`, `apps/web/*/next.config.ts`
 - https://pnpm.io/workspaces
+
+## Amendment 2026-09-30: shared config packages
+
+- **The first workspace packages hold config:** `packages/tsconfig`
+  (`@project-ucp/tsconfig`) and `packages/eslint-config`
+  (`@project-ucp/eslint-config`). Apps depend on them as `workspace:*` and
+  extend them; the per-app copies are gone (ADR-0007). Shared *code* waits until
+  a second app needs it unchanged.
+- **Images copy `packages/`** into their install stage: `--filter <app>...`
+  installs the app's workspace dependencies too, and `next build` reads the
+  shared TypeScript config.
+- **Repository tooling is installed at the root** (Prettier, knip, lefthook,
+  commitlint, TypeScript for the scripts). The images' install stage gets it
+  too, since pnpm links the root's dependencies even with `--filter`, but the
+  final image holds only the traced standalone output. The images install with
+  `--ignore-scripts`, because the root `prepare` script needs git.
+- **`lefthook` joins `ignoredBuiltDependencies`.** Its install script would set
+  up the git hooks; the root `prepare` script does that explicitly instead.

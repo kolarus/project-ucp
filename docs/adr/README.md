@@ -17,3 +17,5 @@ Start with **[0001 — the process](0001-record-architecture-decisions.md)** and
 | [0004](0004-hosting-and-infrastructure.md) | Hosting: one EC2 host, Caddy, Cloudflare; infrastructure as Terraform | monorepo | accepted |
 | [0005](0005-delivery-and-secrets.md) | Delivery and secrets: per-app workflows, OIDC, ECR, SSM, Parameter Store | monorepo | accepted |
 | [0006](0006-contribution-workflow.md) | Contribution workflow: solo, straight to `main`, read-only in public | monorepo | accepted |
+| [0007](0007-validation-and-enforcement.md) | Validation: one `pnpm validate`, shared config, git hooks | monorepo | accepted |
+| [0008](0008-testing-strategy.md) | Testing: critical paths only, visual snapshots, no end-to-end tests | monorepo | accepted |

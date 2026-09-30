@@ -21,15 +21,17 @@ has its own `AGENTS.md` too; read both when working in an app.
 | Server, Caddy, Cloudflare, Terraform | [0004](docs/adr/0004-hosting-and-infrastructure.md) |
 | Deploy workflows, secrets | [0005](docs/adr/0005-delivery-and-secrets.md) |
 | Commits and agent rules | [0006](docs/adr/0006-contribution-workflow.md) |
+| Checks, lint and TypeScript config, git hooks | [0007](docs/adr/0007-validation-and-enforcement.md) |
+| Tests and visual snapshots | [0008](docs/adr/0008-testing-strategy.md) |
 
 ## Repository map
 
 ```
 apps/web/<app>/      Next.js apps, one workspace package each, own Dockerfile
 apps/infra/          Terraform (main.tf), cloud-init, Caddyfile
-packages/            code and config shared between apps (none yet)
+packages/            shared config: tsconfig, eslint-config (code later, when two apps need it)
 docs/adr/            decision records
-scripts/             repo tooling (the `pnpm dev` app picker)
+scripts/             repo tooling: `pnpm dev` app picker, check-docs, test-visual
 .github/workflows/   deploy-<app>.yml → deploy-app.yml; deploy-caddy.yml
 .claude/skills/      agent skills (adr-new)
 ```
@@ -52,7 +54,12 @@ scripts/             repo tooling (the `pnpm dev` app picker)
   there would be serious (a broken page, leaked or lost data, bad input let
   through, wrong numbers shown) **and** nothing else would catch it: not types,
   not lint, not visual snapshots. Each test file names the risk it guards in its
-  first line. No coverage targets. (The owner's policy; its ADR is coming.)
+  first line. No coverage targets. No end-to-end tests.
+  ([0008](docs/adr/0008-testing-strategy.md))
+- **Visual changes need new baselines.** If a change alters what a page looks
+  like on purpose, run `pnpm test:visual:update`, look at the new PNGs, and say
+  so in the handover. A new route gets a line in its app's
+  `tests/visual/pages.spec.ts`. ([0008](docs/adr/0008-testing-strategy.md))
 
 ## Workflow
 
@@ -60,8 +67,11 @@ scripts/             repo tooling (the `pnpm dev` app picker)
   attribution.** Prepare the change, run the checks, list the changed files and
   suggest a Conventional Commit message (`feat(bmorozovcom): …`); the owner
   commits. ([0006](docs/adr/0006-contribution-workflow.md))
-- **Checks before handing over:** `pnpm build` and `pnpm lint` at the root.
-  `next build` type-checks but no longer lints, so run lint yourself.
+- **Checks before handing over:** `pnpm validate` at the root (format, docs,
+  types, unit tests, lint, unused code; about 10 seconds), plus
+  `pnpm test:visual` when anything visible could have changed. Report failures
+  with their output. Needs Node 24: `nvm use` reads `.nvmrc`.
+  ([0007](docs/adr/0007-validation-and-enforcement.md))
 - **Pushing to `main` deploys** every app whose files changed. A change to the
   root `package.json`, lockfile or workspace config redeploys every app.
   ([0002](docs/adr/0002-pnpm-workspace.md), [0005](docs/adr/0005-delivery-and-secrets.md))
@@ -75,9 +85,13 @@ scripts/             repo tooling (the `pnpm dev` app picker)
 ## Commands
 
 ```bash
-pnpm install                                   # at the root: every app, one lockfile
+pnpm install                                   # at the root: every app, one lockfile; installs git hooks
 pnpm dev [app]                                 # pick an app to run (bmorozovcom :3000, jobsbmorozovcom :3001)
-pnpm build | pnpm lint                         # across every app
+pnpm validate                                  # every check; the pre-push hook runs it too
+pnpm format                                    # fix formatting
+pnpm test:visual [app]                         # screenshots vs baselines, in Docker (a few minutes)
+pnpm test:visual:update [app]                  # after an intended visual change; review the PNGs
+pnpm build                                     # every app
 pnpm --filter <app> <script>                   # one app's script
 docker build -f apps/web/<app>/Dockerfile .    # an app's image, from the root
 cd apps/infra && terraform plan                # read-only; the owner applies

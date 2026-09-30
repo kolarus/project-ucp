@@ -8,7 +8,7 @@
 # (the lockfile and workspace config live there) and the image mirrors the
 # repo layout under /app. Every COPY below is therefore root-relative.
 
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -20,8 +20,14 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/jobsbmorozovcom/package.json ./apps/web/jobsbmorozovcom/
+# Shared workspace packages (ADR-0002). Config only today, so they're copied
+# whole; once one holds code, copy just its package.json here and the rest in
+# the build stage, so code changes don't invalidate the install layer.
+COPY packages/ ./packages/
+# --ignore-scripts: the root `prepare` script installs git hooks, and there's no
+# git here. Dependency build scripts are off anyway (pnpm-workspace.yaml).
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter jobsbmorozovcom...
+    pnpm install --frozen-lockfile --ignore-scripts --filter jobsbmorozovcom...
 
 # ---- build ------------------------------------------------------------------
 FROM base AS builder

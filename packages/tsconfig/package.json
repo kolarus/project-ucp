@@ -1,0 +1,6 @@
+{
+  "name": "@project-ucp/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript settings every app and script extends (ADR-0003, ADR-0007)."
+}

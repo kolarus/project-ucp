@@ -81,7 +81,7 @@ type SegmentationData = {
 };
 
 /** Counts per bucket — a day, or an hour for the 24-hour range. */
-export type Series = { buckets: string[]; values: number[]; total: number };
+type Series = { buckets: string[]; values: number[]; total: number };
 
 export type SiteStats =
   | { status: "unconfigured" }

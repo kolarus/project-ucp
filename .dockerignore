@@ -11,6 +11,10 @@
 **/AGENTS.md
 **/CLAUDE.md
 
+# Visual baselines are megabytes of PNGs that no image needs.
+apps/web/*/tests/visual
+**/test-results
+
 # Infrastructure never goes into an app image. Ignoring it also keeps local
 # Terraform state and the provider cache out of the build context.
 apps/infra

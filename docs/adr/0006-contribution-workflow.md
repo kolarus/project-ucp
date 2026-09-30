@@ -73,3 +73,9 @@ Negative / accepted costs:
 ## References
 
 - https://www.conventionalcommits.org
+
+## Amendment 2026-09-30: hooks in place
+
+The commit format is now checked by commitlint in the `commit-msg` hook, and
+`pnpm validate` runs in the `pre-push` hook (ADR-0007). Validation in CI before
+deploys is still planned.

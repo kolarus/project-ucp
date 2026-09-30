@@ -35,7 +35,10 @@ export function ContactChannels({
               <CopyButton
                 value={channel.handle}
                 label={channel.label}
-                tracking={trackClick("contact_clicked", { type, action: "copy" })}
+                tracking={trackClick("contact_clicked", {
+                  type,
+                  action: "copy",
+                })}
                 className="absolute top-3 right-3"
               />
             ) : null}

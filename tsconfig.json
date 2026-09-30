@@ -1,0 +1,16 @@
+{
+  // Repository scripts (scripts/*.mts). Node 24 runs them directly by
+  // stripping types, so only erasable TypeScript syntax is allowed.
+  "extends": "@project-ucp/tsconfig/base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["scripts/**/*.mts"]
+}

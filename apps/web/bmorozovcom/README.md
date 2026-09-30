@@ -10,8 +10,12 @@ workspace). Then, from this directory:
 ```bash
 pnpm dev     # http://localhost:3000
 pnpm build
-pnpm lint
+pnpm lint    # also: pnpm typecheck, pnpm test
 ```
+
+Repository-wide checks run from the root: `pnpm validate`, and
+`pnpm test:visual bmorozovcom` for this app's screenshots against its baselines in
+`tests/visual/` ([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
 
 ## Deploy
 

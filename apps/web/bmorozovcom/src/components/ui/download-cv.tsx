@@ -5,7 +5,9 @@ import { cn } from "@/lib/cn";
 /** CV download button with the file's date, wired to `cv` in the site config. */
 export function DownloadCv({ className }: { className?: string }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}>
+    <div
+      className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}
+    >
       <a
         href={cv.href}
         download={cv.fileName}

@@ -1,0 +1,7 @@
+# Prettier also skips everything in .gitignore.
+pnpm-lock.yaml
+
+# Markdown is hand-wrapped, and Prettier would re-pad every table on each edit.
+# Each app's AGENTS.md also holds a block that `next dev` rewrites byte for byte.
+# check-docs validates the docs instead.
+*.md

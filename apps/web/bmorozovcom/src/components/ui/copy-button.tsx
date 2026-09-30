@@ -43,7 +43,7 @@ export function CopyButton({
   return (
     <button
       type="button"
-      onClick={copy}
+      onClick={() => void copy()}
       {...tracking}
       aria-label={copied ? `${label} copied` : `Copy ${label}`}
       className={cn(

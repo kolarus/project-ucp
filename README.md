@@ -12,9 +12,9 @@ apps/
   web/jobsbmorozovcom/   jobs.bmorozov.com — Next.js job tracker, deployed on push
   infra/                 Terraform and the Caddyfile for the AWS side of it
   api/                   (empty for now)
-packages/                code shared between apps (none yet)
+packages/                shared config (tsconfig, eslint-config); shared code later
 docs/adr/                architecture decision records, one log for every project
-scripts/                 repo tooling (the `pnpm dev` app picker)
+scripts/                 repo tooling: `pnpm dev` app picker, docs check, visual snapshots
 .github/workflows/       per-app deploy on push: build → push to ECR → deploy over SSM
 .claude/skills/          agent skills; AGENTS.md is the agents' entry point
 ```
@@ -39,11 +39,28 @@ app's scripts from its directory, or from the root with
 `pnpm dev` at the root asks which app to start (or all of them). Name it to skip
 the question — a unique prefix is enough, e.g. `pnpm dev jobs`.
 
+Node 24 is required (`nvm use` reads `.nvmrc`); installing on another version
+fails.
+
+## Checks
+
+- `pnpm validate` runs every fast check: formatting, the ADRs and doc links,
+  types, unit tests, lint and unused code
+  ([ADR-0007](docs/adr/0007-validation-and-enforcement.md)). The pre-push hook
+  runs it, and commit messages are checked against Conventional Commits.
+- `pnpm test:visual` screenshots every page and compares it with the committed
+  baselines, inside the Playwright Docker image; it needs Docker. After an
+  intended visual change, `pnpm test:visual:update` regenerates the baselines
+  to review and commit ([ADR-0008](docs/adr/0008-testing-strategy.md)).
+
 ## Adding a project
 
 Create a directory under `apps/web/` with its own `package.json` and a README
 describing what it does and how to run it, then run `pnpm install` at the root —
-the workspace picks it up. Code shared between apps goes in `packages/`.
+the workspace picks it up. Its `tsconfig.json` and `eslint.config.mjs` extend
+the shared packages, and it gets a `playwright.config.ts` and
+`tests/visual/pages.spec.ts` like the existing apps. Code shared between apps
+goes in `packages/`.
 
 To deploy it, add a `.github/workflows/deploy-<app>.yml` like
 `deploy-bmorozovcom.yml`: its `paths` filter means a push only deploys the apps

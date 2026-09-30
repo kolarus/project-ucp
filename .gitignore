@@ -4,11 +4,12 @@ internal_docs/
 # dependencies
 node_modules/
 
-# build output
+# build output and test artifacts (visual diffs land in test-results/)
 .next/
 out/
 build/
 dist/
+test-results/
 
 # env files
 .env*

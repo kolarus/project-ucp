@@ -1,0 +1,21 @@
+{
+  "name": "@project-ucp/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Lint rules every Next.js app extends (ADR-0007).",
+  "type": "module",
+  "exports": {
+    "./nextjs": "./nextjs.mjs"
+  },
+  "dependencies": {
+    "eslint-config-next": "16.3.5"
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "eslint": "^9",
+    "typescript": "^5"
+  }
+}

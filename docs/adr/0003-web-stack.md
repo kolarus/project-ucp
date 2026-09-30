@@ -85,3 +85,17 @@ Negative / accepted costs:
 - `apps/web/*/next.config.ts`, `apps/web/*/tsconfig.json`
 - `node_modules/next/dist/docs/` (Next.js 16 documentation, bundled)
 - https://nodejs.org/en/about/previous-releases
+
+## Amendment 2026-09-30: Node 24 rolled out; stricter TypeScript
+
+- **Node 24 LTS is pinned:** `.nvmrc`, `engines` in the root `package.json`
+  (`>=24 <25`) and `engineStrict` in `pnpm-workspace.yaml`, so installing on any
+  other Node fails instead of warning; `node:24-alpine` in both images. The
+  Playwright image used for visual snapshots runs Node 24 too (ADR-0008). This
+  completes the rollout noted under Decision.
+- **TypeScript settings come from `@project-ucp/tsconfig`** (`nextjs.json` for
+  apps, `base.json` for repository scripts). On top of `strict`:
+  - `noUncheckedIndexedAccess`: an index into an array or record may be
+    `undefined`, and the code has to handle it;
+  - `allowJs: false`: source is TypeScript only.
+- **Lint runs in `pnpm validate`**, with warnings failing (ADR-0007).

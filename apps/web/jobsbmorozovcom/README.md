@@ -15,8 +15,12 @@ directory:
 ```bash
 pnpm dev     # http://localhost:3001
 pnpm build
-pnpm lint
+pnpm lint    # also: pnpm typecheck
 ```
+
+Repository-wide checks run from the root: `pnpm validate`, and
+`pnpm test:visual jobsbmorozovcom` for this app's screenshots against its baselines in
+`tests/visual/` ([ADR-0008](../../../docs/adr/0008-testing-strategy.md)).
 
 Runs on port 3001 so it doesn't collide with bmorozovcom on 3000.
 

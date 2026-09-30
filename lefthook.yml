@@ -1,0 +1,11 @@
+# Git hooks (ADR-0007), installed by `pnpm install` through the root `prepare`
+# script. Skip once with `--no-verify` only to push a fix for a red check.
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
+
+pre-push:
+  commands:
+    validate:
+      run: pnpm validate

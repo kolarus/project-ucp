@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint --max-warnings 0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:visual": "playwright test"
   },
   "dependencies": {
     "@amplitude/unified": "^1.1.35",
@@ -16,13 +19,16 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@project-ucp/eslint-config": "workspace:*",
+    "@project-ucp/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5"
   }
 }

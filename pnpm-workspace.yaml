@@ -2,7 +2,13 @@ packages:
   - "apps/web/*"
   - "packages/*"
 
-# pnpm 10 skips dependency install scripts unless approved; both ship prebuilt binaries.
+# Installing on any Node other than the one in .nvmrc fails instead of warning.
+engineStrict: true
+
+# pnpm 10 skips dependency install scripts unless approved. sharp and
+# unrs-resolver ship prebuilt binaries; lefthook's hooks are installed by the
+# root `prepare` script instead.
 ignoredBuiltDependencies:
+  - lefthook
   - sharp
   - unrs-resolver

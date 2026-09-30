@@ -18,5 +18,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   with `Scope: bmorozov.com`.
 - How it works: [README.md](README.md) (analytics, the stats page, content,
   deploy).
-- Content is typed config in `src/config/`, with no CMS. The CV and screenshots
-  in `public/` use date-stamped file names so caches can't serve stale copies.
+- Content is typed data in the entities (`src/entities/*/model`), with no CMS.
+  The CV and screenshots in `public/` use date-stamped file names so caches
+  can't serve stale copies ([ADR-0011](../../../docs/adr/0011-content-as-code.md)).

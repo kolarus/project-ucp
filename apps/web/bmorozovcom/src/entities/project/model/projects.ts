@@ -1,0 +1,62 @@
+import { siteConfig } from "@/shared/config";
+
+export type Project = {
+  /** URL segment for the project's own pages, e.g. its architecture diagram. */
+  slug: string;
+  name: string;
+  /** One or two lines on what it is. */
+  description: string;
+  /** Why it exists. */
+  purpose: string;
+  tech: readonly string[];
+  /** How it's built, shipped and served. Omit for projects without a pipeline. */
+  infra?: readonly string[];
+  /** Display date, e.g. "September 2026". */
+  updated: string;
+  /** The live thing. */
+  href: `https://${string}`;
+  /** Path of the project's code in the monorepo, linked on its page. */
+  sourcePath?: string;
+  /** Screenshot in `public/projects/`. */
+  image: { src: string; alt: string };
+  /** Has a live stats page built from its own Amplitude events. */
+  stats?: boolean;
+  /** Architecture diagram in `public/projects/`, shown on its own page. */
+  diagram?: { src: string; width: number; height: number };
+};
+
+export const projects: readonly Project[] = [
+  {
+    slug: "personal-website",
+    name: "Personal website",
+    description:
+      "This site. Server-rendered pages, built as a container and deployed on every push to main — the commit in the footer is the one running.",
+    purpose: "Somewhere to point people at, and to keep the CV current.",
+    tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Amplitude"],
+    infra: [
+      "Docker",
+      "Terraform",
+      "AWS EC2",
+      "Amazon ECR",
+      "GitHub Actions",
+      "Caddy",
+      "Cloudflare DNS + proxy",
+      "pnpm monorepo",
+    ],
+    updated: "September 2026",
+    href: siteConfig.url,
+    sourcePath: "apps/web/bmorozovcom",
+    stats: true,
+    image: {
+      // Date-stamped so a new screenshot can never be served from cache.
+      src: "/projects/personal-website-2026-09.jpg",
+      alt: "The about page of this site: heading, intro, stats row and side links.",
+    },
+    diagram: {
+      // Date-stamped too: a changed diagram gets a new URL.
+      src: "/projects/personal-website-architecture-2026-09.svg",
+      width: 1120,
+      height: 750,
+    },
+  },
+];

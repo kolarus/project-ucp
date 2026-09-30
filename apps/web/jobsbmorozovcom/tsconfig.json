@@ -2,8 +2,12 @@
   "extends": "@project-ucp/tsconfig/nextjs.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
+    // One alias per layer (ADR-0009); nothing imports app/.
     "paths": {
-      "@/*": ["./src/*"]
+      "@/views/*": ["./src/views/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/entities/*": ["./src/entities/*"],
+      "@/shared/*": ["./src/shared/*"]
     }
   },
   "include": [

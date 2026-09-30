@@ -80,9 +80,10 @@ Our events carry only what Amplitude can't infer:
 | `project_clicked` | `project`, `destination` (`project_page`, `live_site`, `architecture_diagram`, `stats` or `source`), `url` |
 | `architecture_diagram_viewed` | `project` |
 
-Click events are declared with `trackClick()` from
-`src/lib/analytics-events.ts` and sent by one delegated listener, so tracked
-links stay server components. View events use `<TrackView>`.
+Click events are declared with `trackClick()` from `src/shared/analytics` and
+sent by one delegated listener, so tracked links stay server components. View
+events use `<TrackView>`. Why it's set up this way:
+[ADR-0010](../../../docs/adr/0010-analytics.md).
 
 ## Stats page
 
@@ -90,8 +91,9 @@ links stay server components. View events use `<TrackView>`.
 Amplitude events back through the Dashboard REST API and draws them — page views,
 CV downloads and contact clicks per channel (copying the email address counts as
 an email click). Hourly for the last 24 hours, the default; daily for 7, 30 and
-90 days. Queries run on the server (`src/lib/amplitude-api.ts`, `server-only`); the page
-renders per request for the chosen range.
+90 days. Queries run on the server (`server-only`): `src/shared/api` is the
+Amplitude client, and `src/entities/site-stats` picks the events and ranges. The
+page renders per request for the chosen range.
 
 Freshness is set by Amplitude, which caches query results itself: about 5
 minutes for hourly queries, an hour for daily up to 7 days, 6 hours up to 30,
@@ -113,49 +115,57 @@ the API key above. Without them the page says stats aren't connected.
 
 ## Structure
 
+Layered as `app → views → features → entities → shared`; each layer imports
+only the ones below it ([ADR-0009](../../../docs/adr/0009-layered-structure.md)).
+
 ```
 src/
-  app/                  routes (layout.tsx, page.tsx per segment)
-  app/icon.tsx          favicon + Apple icon, generated from the initials
-  components/about/     homepage stat tiles
-  components/analytics/ <TrackView> for page-view events
-  components/contact/   contact channels, languages
-  components/layout/    site shell: header, nav, footer
-  components/projects/  project cards and chips
-  components/stats/     stats page: tiles, column chart, range picker
-  components/ui/        presentational primitives
-  config/site.ts        identity and CV
-  config/navigation.ts  main nav items
-  config/about.ts       homepage stats
-  config/contact.ts     contact channels and languages
-  config/projects.ts    project entries
-  content/projects/     long-form write-up per project page
-  lib/                  helpers, analytics events, Amplitude read client
-  instrumentation-client.ts  Amplitude init + click listener
+  app/                        routes only: each page renders one view; icons, layout
+  views/                      one slice per page, plus site-shell (header, nav, footer)
+    about/ contact/ projects/ project/ project-architecture/ project-stats/
+  features/                   what visitors do
+    download-cv/ copy-contact/ pick-stats-range/
+  entities/                   the site's things: data and how they look
+    project/                  entries, cards, and write-ups in content/
+    contact-channel/          contact cards, with a slot for the copy button
+    profile/                  headline stats, languages
+    cv/                       the current CV file
+    site-stats/               stats ranges; Amplitude reads in server.ts
+  shared/
+    ui/                       presentational primitives, charts, the favicon mark
+    lib/ config/              cn(), number/date formats; site identity, main nav
+    api/                      Amplitude Dashboard API client (server-only)
+    analytics/                trackClick, <TrackView>; the browser SDK in client.ts
+  instrumentation-client.ts   Amplitude init + click listener
 public/
-  cv/                   the published CV
-  projects/             project screenshots and diagrams
+  cv/                         the published CV
+  projects/                   project screenshots and diagrams
 ```
 
-Everything renders on the server except `components/layout/site-nav.tsx` (needs
-the active route segment to mark the current link) and
-`components/ui/copy-button.tsx` (clipboard). Routes are added by creating a
-folder under `src/app/` and listing it in `mainNav` in
-`src/config/navigation.ts`; `typedRoutes` keeps every `href` type-checked.
+Everything renders on the server except `views/site-shell/ui/site-nav.tsx`
+(needs the active route segment to mark the current link) and
+`shared/ui/copy-button.tsx` (clipboard). A new page is a view plus a few-line
+route file under `src/app/`, listed in `mainNav` in
+`src/shared/config/navigation.ts`; `typedRoutes` keeps every `href`
+type-checked.
 
 "About me" is the index route (`src/app/page.tsx`) — the text logo is a link to
 it, not a page of its own.
 
 ## Content
 
-No CMS: everything that changes between deploys lives in `src/config/`, one file
-per kind of content.
+No CMS: content is typed data in the entity it belongs to
+([ADR-0011](../../../docs/adr/0011-content-as-code.md)). Content changes show
+up in the visual snapshots, so update the baselines with them.
 
 - **New CV** — add it to `public/cv/` with a date-stamped name
-  (`CV_Bohdan_Morozov_YYYY-MM.pdf`), point `cv.href` at it, bump `cv.updated`,
-  and delete the old file. A new name means a new URL, so Cloudflare and
-  browsers can't serve the old one from cache. `bmorozov.com/cv` and the
-  original `/cv/CV_Bohdan_Morozov.pdf` redirect to whatever `cv.href` is.
-- **New project** — add an entry to `projects` and put its screenshot in
-  `public/projects/`.
-- **Stats, contact details, languages** — `about.ts` and `contact.ts`.
+  (`CV_Bohdan_Morozov_YYYY-MM.pdf`), point `href` in
+  `src/entities/cv/model/cv.ts` at it, bump `updated`, and delete the old file.
+  A new name means a new URL, so Cloudflare and browsers can't serve the old one
+  from cache. `bmorozov.com/cv` and the original `/cv/CV_Bohdan_Morozov.pdf`
+  redirect to whatever `href` is.
+- **New project** — add an entry to `src/entities/project/model/projects.ts`
+  and put its screenshot in `public/projects/`; a long-form write-up goes in
+  `src/entities/project/content/` and is registered in `ui/project-write-up.tsx`.
+- **Headline stats, languages** — `src/entities/profile/model/`; **contact
+  details** — `src/entities/contact-channel/model/channels.ts`.

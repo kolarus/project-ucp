@@ -1,6 +1,4 @@
-import { PageHeader } from "@/components/ui/page-header";
-import { PageSection } from "@/components/ui/page-section";
-import { TextLink } from "@/components/ui/text-link";
+import { PageHeader, PageSection, TextLink } from "@/shared/ui";
 
 // `not-found.tsx` does not support a `metadata` export; only `global-not-found`
 // does. The title falls back to the root layout default.

@@ -8,10 +8,11 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "pnpm -r build",
-    "validate": "pnpm format:check && pnpm check-docs && pnpm typecheck && pnpm test && pnpm lint && pnpm knip",
+    "validate": "pnpm format:check && pnpm check-docs && pnpm check-architecture && pnpm typecheck && pnpm test && pnpm lint && pnpm knip",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check-docs": "node scripts/check-docs.mts",
+    "check-architecture": "node scripts/check-architecture.mts",
     "typecheck": "tsc -p . && pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:visual": "node scripts/test-visual.mts",

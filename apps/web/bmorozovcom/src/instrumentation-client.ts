@@ -1,6 +1,6 @@
 import * as amplitude from "@amplitude/unified";
 
-import { analyticsEnabled, track } from "@/lib/analytics";
+import { analyticsEnabled, track } from "@/shared/analytics/client";
 
 /**
  * Amplitude, initialised before the app hydrates. Without an API key (local
@@ -11,13 +11,13 @@ import { analyticsEnabled, track } from "@/lib/analytics";
  * path/title/URL and the previous page on every event via page URL enrichment;
  * geo from the IP and device/OS/browser server-side. Our events add only what
  * it can't know — which contact, which project, which CV. Components declare
- * them as `data-analytics-*` attributes (see `src/lib/analytics-events.ts`)
+ * them as `data-analytics-*` attributes (see `src/shared/analytics/events.ts`)
  * and one delegated listener sends them.
  */
 
 /**
  * Sends the event declared on the clicked element (or its nearest ancestor)
- * by `trackClick()` from `src/lib/analytics-events.ts`.
+ * by `trackClick()` from `src/shared/analytics/events.ts`.
  */
 function handleTrackedClick(event: MouseEvent) {
   const target = event.target instanceof Element ? event.target : null;

@@ -2,7 +2,7 @@ import path from "node:path";
 
 import type { NextConfig } from "next";
 
-import { cv } from "./src/config/site";
+import { cv } from "./src/entities/cv";
 
 const nextConfig: NextConfig = {
   typedRoutes: true,

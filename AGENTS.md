@@ -23,18 +23,47 @@ has its own `AGENTS.md` too; read both when working in an app.
 | Commits and agent rules | [0006](docs/adr/0006-contribution-workflow.md) |
 | Checks, lint and TypeScript config, git hooks | [0007](docs/adr/0007-validation-and-enforcement.md) |
 | Tests and visual snapshots | [0008](docs/adr/0008-testing-strategy.md) |
+| Where code goes: layers, slices, imports | [0009](docs/adr/0009-layered-structure.md) |
+| bmorozov.com analytics and stats page | [0010](docs/adr/0010-analytics.md) |
+| bmorozov.com content, CV, date-stamped files | [0011](docs/adr/0011-content-as-code.md) |
 
 ## Repository map
 
 ```
 apps/web/<app>/      Next.js apps, one workspace package each, own Dockerfile
+  src/               app → views → features → entities → shared (below)
 apps/infra/          Terraform (main.tf), cloud-init, Caddyfile
 packages/            shared config: tsconfig, eslint-config (code later, when two apps need it)
 docs/adr/            decision records
-scripts/             repo tooling: `pnpm dev` app picker, check-docs, test-visual
+scripts/             repo tooling: `pnpm dev` app picker, check-docs, check-architecture, test-visual
 .github/workflows/   validate.yml and deploy-<app>.yml → deploy-app.yml both run checks.yml; deploy-caddy.yml
-.claude/skills/      agent skills (adr-new)
+.claude/skills/      agent skills (adr-new, where-does-it-go)
 ```
+
+## Where code goes
+
+Each app's `src/` has five layers; a layer imports only the layers below it
+([0009](docs/adr/0009-layered-structure.md)).
+
+```
+app → views → features → entities → shared
+```
+
+1. Would another app use it unchanged? → `shared/<segment>` (`ui`, `lib`,
+   `config`, `api`, `analytics`)
+2. Is it a business *thing* (data, mapping, how it looks)? → `entities/<noun>`
+3. Is it something the user *does*? → `features/<verb-noun>`
+4. Does it put together one page? → `views/<page>`
+5. Is it a route or global wiring? → `app/`: Next's route files only; a page
+   reads params and renders one view.
+
+- Import another slice only through its `index.ts`, or `server.ts` for
+  server-only code; inside a slice, relative imports. Never sideways within a
+  layer: the layer above composes, or a slot prop takes the other slice.
+- Code sits in segments: `ui/`, `model/`, `api/`, `lib/`, and `content/` for
+  write-ups. `"use client"` only in `ui/` files. kebab-case names.
+- Unsure? Use the `where-does-it-go` skill. Lint and `check-architecture`
+  reject what doesn't fit.
 
 ## Hard rules
 
@@ -68,7 +97,7 @@ scripts/             repo tooling: `pnpm dev` app picker, check-docs, test-visua
   suggest a Conventional Commit message (`feat(bmorozovcom): …`); the owner
   commits. ([0006](docs/adr/0006-contribution-workflow.md))
 - **Checks before handing over:** `pnpm validate` at the root (format, docs,
-  types, unit tests, lint, unused code; about 10 seconds), plus
+  structure, types, unit tests, lint, unused code; about 10 seconds), plus
   `pnpm test:visual` when anything visible could have changed. Report failures
   with their output. Needs Node 24: `nvm use` reads `.nvmrc`.
   ([0007](docs/adr/0007-validation-and-enforcement.md))

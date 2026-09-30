@@ -113,3 +113,9 @@ Negative / accepted costs:
 - `scripts/check-docs.mts`
 - https://typescript-eslint.io/getting-started/typed-linting
 - https://nodejs.org/api/typescript.html
+
+## Amendment 2026-09-30: architecture checks
+
+`pnpm validate` gains `check-architecture` (after `check-docs`), and the shared
+ESLint config gains the layer rules, `import/no-cycle` and two restrictions
+(the analytics SDK, `fetch`). What they enforce is ADR-0009.

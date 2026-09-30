@@ -9,16 +9,25 @@ users.
 ```
 apps/
   web/bmorozovcom/       bmorozov.com — Next.js, containerised, deployed on push
-  web/jobsbmorozovcom/   jobs.bmorozov.com — Next.js job tracker, not deployed yet
+  web/jobsbmorozovcom/   jobs.bmorozov.com — Next.js job tracker, deployed on push
   infra/                 Terraform and the Caddyfile for the AWS side of it
   api/                   (empty for now)
 packages/                code shared between apps (none yet)
+docs/adr/                architecture decision records, one log for every project
 scripts/                 repo tooling (the `pnpm dev` app picker)
 .github/workflows/       per-app deploy on push: build → push to ECR → deploy over SSM
+.claude/skills/          agent skills; AGENTS.md is the agents' entry point
 ```
 
 Each app owns its `Dockerfile`; images are built from the repo root as context.
 See an app's own README for how to run it.
+
+## Decisions
+
+Significant decisions are recorded as Architecture Decision Records in
+[docs/adr/](docs/adr/README.md): why each choice was made, what else was
+considered, and how it's checked. They're binding for every change, human or
+agent. Start with the [index](docs/adr/README.md).
 
 ## Workspace
 

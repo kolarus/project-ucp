@@ -22,8 +22,10 @@ Runs on port 3001 so it doesn't collide with bmorozovcom on 3000.
 
 ## Deploy
 
-Not deployed yet. The image builds like bmorozovcom's — the context is the repo
-root, so run it from there:
+Deployed to https://jobs.bmorozov.com on every push to `main` that touches this
+app (`.github/workflows/deploy-jobsbmorozovcom.yml`; how it works:
+[ADR-0005](../../../docs/adr/0005-delivery-and-secrets.md)). To build the image
+locally, run from the repo root, which is the build context:
 
 ```bash
 docker build -f apps/web/jobsbmorozovcom/Dockerfile -t jobsbmorozovcom .

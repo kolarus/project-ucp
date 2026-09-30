@@ -17,3 +17,6 @@ apps/infra
 **/.terraform
 **/*.tfstate
 **/*.tfstate.*
+
+# Private plans never enter an image's build context.
+internal_docs
